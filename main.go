@@ -28,10 +28,15 @@ var upgrader = websocket.Upgrader{} // use default options
 func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SignIn============>")
 	var cmdMsgResp CommandMsgResp
-
-	GId2ConnMap.Store(cmdMsg.Id, Player{CurrConn: c, SignInTime: time.Now()})
-	GConn2IdMap.Store(c, cmdMsg.Id)
-
+	GId2ConnMap.Store(cmdMsg.UserId, Player{CurrConn: c, SignInTime: time.Now()})
+	GConn2IdMap.Store(c, cmdMsg.UserId)
+	GId2ConnMap.Range(func(k, v interface{}) bool {
+		fmt.Println("iterate:", k, v)
+		p, _ := v.(Player)
+		p.CurrConn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s", time.Now().Unix())))
+		return true
+	})
+	log.Println("=========>Signed============>")
 	return cmdMsgResp
 }
 
@@ -55,6 +60,53 @@ func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 }
 
 /*
+	得到用户列表
+*/
+func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>getUsers============>")
+	var cmdMsgResp CommandMsgResp
+	uList := make([]User, 0)
+	GId2ConnMap.Range(func(k, v interface{}) bool {
+		fmt.Println("iterate:", k, v)
+		p, _ := v.(Player)
+
+		var u User
+		u.Id = fmt.Sprintf("%s", k)
+		u.NickName = p.NickName
+		uList = append(uList, u)
+		return true
+	})
+	if buf, err := json.Marshal(uList); err != nil {
+		log.Println(err)
+	} else {
+		log.Println(string(buf))
+		cmdMsgResp.Message = string(buf)
+		cmdMsgResp.Type = GET_USERS
+		cmdMsgResp.Success = true
+	}
+
+	return cmdMsgResp
+}
+
+/*
+	请求玩家
+*/
+func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>reqPlay============>")
+	var cmdMsgResp CommandMsgResp
+	return cmdMsgResp
+}
+
+/*
+	另一玩家确认请求
+*/
+func reqPlayOK(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>reqPlayOK============>")
+	var cmdMsgResp CommandMsgResp
+	return cmdMsgResp
+}
+
+/*
    主流程处理
 */
 
@@ -65,31 +117,40 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
+
 	defer c.Close()
 	var cmdMsg CommandMsg
 	var cmdMsgResp CommandMsgResp
 	for {
+
 		//c.SetReadDeadline(time.Now().Add(5 * time.Second))
 		mt, message, err := c.ReadMessage()
-		log.Println("Recv Origin Messgaeg====>", string(message))
+
+		log.Println(string(message))
 		if err != nil {
 			log.Println("read:", err)
 			break
 		}
-		err = json.Unmarshal(message, &cmdMsg)
-		if err != nil {
+		if err = json.Unmarshal(message, &cmdMsg); err != nil {
 			log.Println("Unmarshal:", err)
 		}
 		switch cmdMsg.Type {
 		case PLAY_CARD:
-			cmdMsgResp = playCard(cmdMsg)
+			cmdMsgResp = playCard(c, cmdMsg)
 		case SIGN_IN:
-			cmdMsgResp = signIn(cmdMsg)
+			cmdMsgResp = signIn(c, cmdMsg)
 		case SEND_MSG:
-			cmdMsgResp = sendMsg(cmdMsg)
+			cmdMsgResp = sendMsg(c, cmdMsg)
+		case GET_USERS:
+			cmdMsgResp = getUsers(c, cmdMsg)
+		case REQ_PLAY:
+			cmdMsgResp = reqPlay(c, cmdMsg)
+		case REQ_PALYOK:
+			cmdMsgResp = reqPlayOK(c, cmdMsg)
 		}
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
+		log.Println(mt, cmdMsgResp)
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -101,6 +162,8 @@ func main() {
 	fmt.Println("=====>ArmFight======>")
 
 	http.HandleFunc("/echo", gameHandle)
+
+	http.HandleFunc("/getUsers", gameHandle)
 
 	log.Fatal(http.ListenAndServe(*addr, nil))
 	fmt.Println("hello")
