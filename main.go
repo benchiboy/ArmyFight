@@ -24,19 +24,19 @@ var upgrader = websocket.Upgrader{} // use default options
 
 /*
 	玩家签到处理
+	1:从数据库查询用户的信息 同步到内存中
+
 */
 func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SignIn============>")
+	GId2ConnMap.Store(cmdMsg.NickName, Player{CurrConn: c, SignInTime: time.Now(),
+		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE})
+	GConn2IdMap.Store(c, cmdMsg.NickName)
 	var cmdMsgResp CommandMsgResp
-	GId2ConnMap.Store(cmdMsg.UserId, Player{CurrConn: c, SignInTime: time.Now()})
-	GConn2IdMap.Store(c, cmdMsg.UserId)
-	GId2ConnMap.Range(func(k, v interface{}) bool {
-		fmt.Println("iterate:", k, v)
-		p, _ := v.(Player)
-		p.CurrConn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s", time.Now().Unix())))
-		return true
-	})
-	log.Println("=========>Signed============>")
+	cmdMsgResp.Type = SIGN_IN
+	cmdMsgResp.Success = true
+	cmdMsgResp.Message = "Sign In Success!"
+
 	return cmdMsgResp
 }
 
@@ -46,6 +46,16 @@ func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 
 func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>PlayCard============>")
+	var cmdMsgResp CommandMsgResp
+	return cmdMsgResp
+}
+
+/*
+	玩家发牌对比结果
+*/
+
+func playCardResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>playCardResult============>")
 	var cmdMsgResp CommandMsgResp
 	return cmdMsgResp
 }
@@ -64,27 +74,32 @@ func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 */
 func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>getUsers============>")
-	var cmdMsgResp CommandMsgResp
 	uList := make([]User, 0)
+	var cmdMsgResp CommandMsgResp
 	GId2ConnMap.Range(func(k, v interface{}) bool {
-		fmt.Println("iterate:", k, v)
 		p, _ := v.(Player)
-
 		var u User
-		u.Id = fmt.Sprintf("%s", k)
-		u.NickName = p.NickName
-		uList = append(uList, u)
+		if cmdMsg.NickName != p.NickName {
+			u.UserId = fmt.Sprintf("%s", k)
+			u.NickName = p.NickName
+			u.Avatar = p.Avatar
+			u.Candy = p.Candy
+			u.Decoration = p.Decoration
+			u.Icecream = p.Icecream
+			u.LoginTime = p.SignInTime
+			u.Memo = p.Memo
+			u.Status = p.Status
+			uList = append(uList, u)
+		}
 		return true
 	})
-	if buf, err := json.Marshal(uList); err != nil {
+	if userBuf, err := json.Marshal(uList); err != nil {
 		log.Println(err)
 	} else {
-		log.Println(string(buf))
-		cmdMsgResp.Message = string(buf)
+		cmdMsgResp.Message = string(userBuf)
 		cmdMsgResp.Type = GET_USERS
 		cmdMsgResp.Success = true
 	}
-
 	return cmdMsgResp
 }
 
@@ -94,6 +109,8 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>reqPlay============>")
 	var cmdMsgResp CommandMsgResp
+	log.Println(cmdMsg.FromId, cmdMsg.ToId)
+
 	return cmdMsgResp
 }
 
@@ -117,15 +134,11 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-
 	defer c.Close()
 	var cmdMsg CommandMsg
 	var cmdMsgResp CommandMsgResp
 	for {
-
-		//c.SetReadDeadline(time.Now().Add(5 * time.Second))
 		mt, message, err := c.ReadMessage()
-
 		log.Println(string(message))
 		if err != nil {
 			log.Println("read:", err)
@@ -137,6 +150,8 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		switch cmdMsg.Type {
 		case PLAY_CARD:
 			cmdMsgResp = playCard(c, cmdMsg)
+		case PLAY_CARD_RESULT:
+			cmdMsgResp = playCardResult(c, cmdMsg)
 		case SIGN_IN:
 			cmdMsgResp = signIn(c, cmdMsg)
 		case SEND_MSG:
