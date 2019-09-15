@@ -46,7 +46,16 @@ func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 
 func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>PlayCard============>")
+
+	cmdMsg.Role = getRole(cmdMsg.FromId)
+	proxyMsg(c, cmdMsg)
+
+	setCard(cmdMsg.FromId, cmdMsg.SCore, cmdMsg.Message)
 	var cmdMsgResp CommandMsgResp
+	cmdMsgResp.Message = cmdMsg.Message
+	cmdMsgResp.Role = getRole(cmdMsg.FromId)
+	cmdMsgResp.Type = PLAY_CARD_RESP
+
 	return cmdMsgResp
 }
 
@@ -54,9 +63,65 @@ func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	玩家发牌对比结果
 */
 
-func playCardResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>playCardResult============>")
+func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>queryResult============>")
+	sScore, sCard := getCard(cmdMsg.FromId)
+	mScore, mCard := getCard(cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
+
+	if sScore > mScore {
+		//出现炸弹，地址 和人员相碰的情况
+		if sScore == 101 || sScore == 100 {
+			if mScore == 0 {
+				cmdMsgResp.Winner = "M"
+			} else {
+				cmdMsgResp.Winner = "B"
+			}
+		} else {
+			cmdMsgResp.Winner = "S"
+			if mScore == 0 {
+				cmdMsgResp.Status = "E"
+			}
+		}
+	} else if sScore == mScore {
+		cmdMsgResp.Winner = "B"
+	} else {
+		//出现炸弹，地址 和人员相碰的情况
+		if mScore == 101 || mScore == 100 {
+			if sScore == 0 {
+				cmdMsgResp.Winner = "S"
+			} else {
+				cmdMsgResp.Winner = "B"
+			}
+
+		} else {
+			cmdMsgResp.Winner = "M"
+			if sScore == 0 {
+				cmdMsgResp.Status = "E"
+			}
+		}
+	}
+	//出工兵和地理的情况
+	if sScore == 1 && mScore == 100 {
+		cmdMsgResp.Winner = "S"
+	}
+	if mScore == 1 && sScore == 100 {
+		cmdMsgResp.Winner = "M"
+	}
+	//出炸弹和地雷的情况
+	if sScore == 100 && mScore == 101 {
+		cmdMsgResp.Winner = "B"
+	}
+	if mScore == 100 && sScore == 101 {
+		cmdMsgResp.Winner = "B"
+	}
+
+	cmdMsgResp.Type = QUERY_RESULT_RESP
+	cmdMsgResp.Message = sCard
+
+	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
+
+	cmdMsgResp.Message = mCard
 	return cmdMsgResp
 }
 
@@ -97,10 +162,55 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 		log.Println(err)
 	} else {
 		cmdMsgResp.Message = string(userBuf)
-		cmdMsgResp.Type = GET_USERS
 		cmdMsgResp.Success = true
 	}
+	cmdMsgResp.Type = GET_USERS_RESP
 	return cmdMsgResp
+}
+
+/*
+	消息转发
+*/
+func proxyMsg(c *websocket.Conn, cmdMsg CommandMsg) {
+	log.Println("=========>proxyMsg============>")
+	log.Println(cmdMsg.FromId, cmdMsg.ToId)
+	playerObj, ok := GId2ConnMap.Load(cmdMsg.ToId)
+	if !ok {
+		log.Println(cmdMsg.ToId + "缓存信息没有获取到")
+	}
+	toPlayer, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	if reqBuf, err := json.Marshal(cmdMsg); err != nil {
+		log.Println(err)
+	} else {
+		if err := toPlayer.CurrConn.WriteMessage(websocket.TextMessage, []byte(string(reqBuf))); err != nil {
+			log.Println("发送出错")
+		}
+	}
+}
+
+/*
+	消息转发
+*/
+func proxyMsgResp(toId string, cmdMsgResp CommandMsgResp) {
+	log.Println("=========>proxyMsgResp============>")
+	playerObj, ok := GId2ConnMap.Load(toId)
+	if !ok {
+		log.Println("缓存信息没有获取到")
+	}
+	toPlayer, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	if reqBuf, err := json.Marshal(cmdMsgResp); err != nil {
+		log.Println(err)
+	} else {
+		if err := toPlayer.CurrConn.WriteMessage(websocket.TextMessage, []byte(string(reqBuf))); err != nil {
+			log.Println("发送出错")
+		}
+	}
 }
 
 /*
@@ -109,18 +219,150 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>reqPlay============>")
 	var cmdMsgResp CommandMsgResp
-	log.Println(cmdMsg.FromId, cmdMsg.ToId)
+	proxyMsg(c, cmdMsg)
 
+	cmdMsgResp.Type = REQ_PLAY_RESP
+	return cmdMsgResp
+}
+
+/*
+	另一玩家答应请求
+*/
+func setRole(playerId string, role string) {
+	log.Println("=========>setRole============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	player.Role = role
+	GId2ConnMap.Store(playerId, player)
+	log.Println("=========>setRole============>", playerId)
+}
+
+/*
+	另一玩家答应请求
+*/
+func getRole(playerId string) string {
+	log.Println("=========>setRole============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	return player.Role
+}
+
+/*
+	存储玩家的出牌
+*/
+func setCard(playerId string, score int, card string) {
+	log.Println("=========>setCard============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	player.CurrSCore = score
+	player.CurrCard = card
+	GId2ConnMap.Store(playerId, player)
+	log.Println("=========>setCard============>", playerId)
+}
+
+/*
+	存储玩家的出牌
+*/
+func getCard(playerId string) (int, string) {
+	log.Println("=========>getCard============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	return player.CurrSCore, player.CurrCard
+}
+
+/*
+	另一玩家答应请求
+*/
+func setStatus(playerId string, status int) {
+	log.Println("=========>setStatus============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	player.Status = status
+	GId2ConnMap.Store(playerId, player)
+	log.Println("=========>setStatus============>", playerId)
+}
+
+/*
+	另一玩家答应请求
+*/
+func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>reqPlayYes============>")
+	var cmdMsgResp CommandMsgResp
+	cmdMsg.Message = "对方同意了"
+	proxyMsg(c, cmdMsg)
+
+	//初始玩家双方的状态
+	setStatus(cmdMsg.FromId, STATUS_ONLIE_READY)
+	setStatus(cmdMsg.ToId, STATUS_ONLIE_READY)
+
+	setRole(cmdMsg.FromId, "S")
+	setRole(cmdMsg.ToId, "M")
+
+	cmdMsgResp.Type = REQ_PALY_YES_RESP
+	return cmdMsgResp
+}
+
+/*
+	另一玩家拒绝请求
+*/
+func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>reqPlayNo============>")
+	var cmdMsgResp CommandMsgResp
+	cmdMsg.Message = "对方拒绝了"
+	proxyMsg(c, cmdMsg)
+
+	cmdMsgResp.Type = REQ_PALY_NO_RESP
 	return cmdMsgResp
 }
 
 /*
 	另一玩家确认请求
 */
-func reqPlayOK(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>reqPlayOK============>")
-	var cmdMsgResp CommandMsgResp
-	return cmdMsgResp
+func disconnClear(c *websocket.Conn) {
+	log.Println("=========>disconnClear============>")
+	playIdObj, ok := GConn2IdMap.Load(c)
+	if !ok {
+		log.Println(c, "缓存信息没有获取到")
+	}
+	playId, ret := playIdObj.(string)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	//删除SN对应的缓存
+	GId2ConnMap.Delete(playId)
+	GConn2IdMap.Delete(c)
+
+	log.Println("处理断开之后的清理")
 }
 
 /*
@@ -141,7 +383,7 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		mt, message, err := c.ReadMessage()
 		log.Println(string(message))
 		if err != nil {
-			log.Println("read:", err)
+			disconnClear(c)
 			break
 		}
 		if err = json.Unmarshal(message, &cmdMsg); err != nil {
@@ -150,8 +392,8 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		switch cmdMsg.Type {
 		case PLAY_CARD:
 			cmdMsgResp = playCard(c, cmdMsg)
-		case PLAY_CARD_RESULT:
-			cmdMsgResp = playCardResult(c, cmdMsg)
+		case QUERY_RESULT:
+			cmdMsgResp = queryResult(c, cmdMsg)
 		case SIGN_IN:
 			cmdMsgResp = signIn(c, cmdMsg)
 		case SEND_MSG:
@@ -160,12 +402,14 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = getUsers(c, cmdMsg)
 		case REQ_PLAY:
 			cmdMsgResp = reqPlay(c, cmdMsg)
-		case REQ_PALYOK:
-			cmdMsgResp = reqPlayOK(c, cmdMsg)
+		case REQ_PALY_YES:
+			cmdMsgResp = reqPlayYes(c, cmdMsg)
+		case REQ_PALY_NO:
+			cmdMsgResp = reqPlayNo(c, cmdMsg)
 		}
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
-		log.Println(mt, cmdMsgResp)
+		log.Println("发送的消息：", mt, cmdMsgResp)
 		if err != nil {
 			log.Println("write:", err)
 			break

@@ -7,15 +7,26 @@ import (
 )
 
 const SIGN_IN = 1
-const PLAY_CARD = 2
-const PLAY_CARD_RESULT = 9
-const SEND_MSG = 3
-const GET_USERS = 4
-const REQ_PLAY = 5
-const REQ_PALYOK = 6
-const REQ_GIVEUP = 7
-const REQ_GIVEUPOK = 8
 
+const PLAY_CARD = 1001
+const PLAY_CARD_RESP = 2001
+const QUERY_RESULT = 1012
+const QUERY_RESULT_RESP = 2012
+
+const SEND_MSG = 1003
+const SEND_MSG_RESP = 2003
+const GET_USERS = 1004
+const GET_USERS_RESP = 2004
+const REQ_PLAY = 1005
+const REQ_PLAY_RESP = 2005
+const REQ_PALY_YES = 1006
+const REQ_PALY_YES_RESP = 2006
+const REQ_PALY_NO = 1010
+const REQ_PALY_NO_RESP = 2010
+const REQ_GIVEUP = 1007
+const REQ_GIVEUPOK = 2007
+
+const STATUS_ONLIE_READY = 1
 const STATUS_ONLIE_DONG = 1
 const STATUS_ONLIN_IDLE = 2
 const STATUS_OFFLINE = 3
@@ -29,12 +40,16 @@ type CommandMsg struct {
 	ToId     string `json:"toid"`
 	NickName string `json:"nickname"`
 	Message  string `json:"message"`
+	Role     string `json:"role"`
 	SCore    int    `json:"score"`
 }
 
 type CommandMsgResp struct {
 	Type    int    `json:"type"`
 	Success bool   `json:"success"`
+	Role    string `json:"role"`
+	Winner  string `json:"winner"`
+	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
@@ -58,11 +73,13 @@ type Player struct {
 	CurrConn   *websocket.Conn
 	SignInTime time.Time
 	NickName   string
-	CurrCard   int
+	CurrSCore  int
+	CurrCard   string
 	Status     int
 	LoginTime  time.Time
 	Avatar     string
 	Memo       string
+	Role       string
 	Decoration int
 	Candy      int
 	Icecream   int
