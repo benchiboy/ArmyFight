@@ -6,25 +6,45 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const SIGN_IN = 1
+//签到
+const SIGN_IN = 1000
+const SIGN_IN_RESP = 2000
 
+//出牌
 const PLAY_CARD = 1001
 const PLAY_CARD_RESP = 2001
+
+//查询结果
 const QUERY_RESULT = 1012
 const QUERY_RESULT_RESP = 2012
 
+//发送消息
 const SEND_MSG = 1003
 const SEND_MSG_RESP = 2003
+
+//查看在线用户
 const GET_USERS = 1004
 const GET_USERS_RESP = 2004
+
+//请求玩家
 const REQ_PLAY = 1005
 const REQ_PLAY_RESP = 2005
+
+//玩家同意
 const REQ_PALY_YES = 1006
 const REQ_PALY_YES_RESP = 2006
+
+//玩家拒绝
 const REQ_PALY_NO = 1010
 const REQ_PALY_NO_RESP = 2010
+
+//主动认输
 const REQ_GIVEUP = 1007
-const REQ_GIVEUPOK = 2007
+const REQ_GIVEUP_RESP = 2007
+
+//初始数据
+const REQ_INIT_DATA = 1030
+const REQ_INIT_DATA_RESP = 2030
 
 const STATUS_ONLIE_READY = 1
 const STATUS_ONLIE_DONG = 1
@@ -45,12 +65,15 @@ type CommandMsg struct {
 }
 
 type CommandMsgResp struct {
-	Type    int    `json:"type"`
-	Success bool   `json:"success"`
-	Role    string `json:"role"`
-	Winner  string `json:"winner"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Type       int    `json:"type"`
+	Success    bool   `json:"success"`
+	Role       string `json:"role"`
+	FromId     string `json:"fromid"`
+	ToId       string `json:"toid"`
+	Winner     string `json:"winner"`
+	Status     string `json:"status"`
+	Message    string `json:"message"`
+	AnotherMsg string `json:"anothermsg"`
 }
 
 // Status 1:在线空闲 2：在线游戏中 3:离线

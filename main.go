@@ -29,14 +29,23 @@ var upgrader = websocket.Upgrader{} // use default options
 */
 func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SignIn============>")
+
+	var cmdMsgResp CommandMsgResp
+	cmdMsgResp.Type = SIGN_IN_RESP
+	cmdMsgResp.Success = true
+	_, ok := GId2ConnMap.Load(cmdMsg.NickName)
+	if ok {
+		log.Println(cmdMsg.NickName + "用户已经在线")
+		cmdMsgResp.Success = false
+		cmdMsgResp.Message = "用户已经在线"
+		return cmdMsgResp
+	}
 	GId2ConnMap.Store(cmdMsg.NickName, Player{CurrConn: c, SignInTime: time.Now(),
 		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE})
 	GConn2IdMap.Store(c, cmdMsg.NickName)
-	var cmdMsgResp CommandMsgResp
-	cmdMsgResp.Type = SIGN_IN
-	cmdMsgResp.Success = true
-	cmdMsgResp.Message = "Sign In Success!"
 
+	cmdMsgResp.FromId = cmdMsg.FromId
+	cmdMsgResp.Message = "Sign In Success!"
 	return cmdMsgResp
 }
 
@@ -67,8 +76,8 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>queryResult============>")
 	sScore, sCard := getCard(cmdMsg.FromId)
 	mScore, mCard := getCard(cmdMsg.ToId)
-	var cmdMsgResp CommandMsgResp
 
+	var cmdMsgResp CommandMsgResp
 	if sScore > mScore {
 		//出现炸弹，地址 和人员相碰的情况
 		if sScore == 101 || sScore == 100 {
@@ -86,7 +95,7 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	} else if sScore == mScore {
 		cmdMsgResp.Winner = "B"
 	} else {
-		//出现炸弹，地址 和人员相碰的情况
+		//出现炸弹，地雷 和人员相碰的情况
 		if mScore == 101 || mScore == 100 {
 			if sScore == 0 {
 				cmdMsgResp.Winner = "S"
@@ -117,11 +126,16 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	}
 
 	cmdMsgResp.Type = QUERY_RESULT_RESP
-	cmdMsgResp.Message = sCard
+	cmdMsgResp.Message = mCard
+	cmdMsgResp.AnotherMsg = sCard
+
+	cmdMsgResp.Role = "M"
 
 	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
 
-	cmdMsgResp.Message = mCard
+	cmdMsgResp.Role = "S"
+	cmdMsgResp.Message = sCard
+	cmdMsgResp.AnotherMsg = mCard
 	return cmdMsgResp
 }
 
@@ -130,7 +144,10 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 */
 func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SendMsg============>")
+
 	var cmdMsgResp CommandMsgResp
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp.Type = SEND_MSG_RESP
 	return cmdMsgResp
 }
 
@@ -279,7 +296,7 @@ func setCard(playerId string, score int, card string) {
 }
 
 /*
-	存储玩家的出牌
+	得到
 */
 func getCard(playerId string) (int, string) {
 	log.Println("=========>getCard============>")
@@ -346,17 +363,46 @@ func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 }
 
 /*
+	登录成功后初始化数据
+*/
+func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>initData============>")
+	var cmdMsgResp CommandMsgResp
+	cardMap := map[string]int{"工兵": 3, "排长": 2}
+	mjson, _ := json.Marshal(cardMap)
+	mString := string(mjson)
+	fmt.Printf("print mString:%s", mString)
+	cmdMsgResp.Message = mString
+
+	cmdMsgResp.Type = REQ_INIT_DATA_RESP
+	return cmdMsgResp
+}
+
+/*
+	发起认输
+*/
+func giveUp(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>giveUp============>")
+	var cmdMsgResp CommandMsgResp
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp.Message = "放弃认输"
+	cmdMsgResp.Type = REQ_GIVEUP_RESP
+	return cmdMsgResp
+}
+
+/*
 	另一玩家确认请求
 */
 func disconnClear(c *websocket.Conn) {
 	log.Println("=========>disconnClear============>")
 	playIdObj, ok := GConn2IdMap.Load(c)
 	if !ok {
-		log.Println(c, "缓存信息没有获取到")
+		log.Println("缓存信息没有获取到")
 	}
 	playId, ret := playIdObj.(string)
 	if !ret {
 		log.Println("类型断言错误")
+		return
 	}
 	//删除SN对应的缓存
 	GId2ConnMap.Delete(playId)
@@ -406,6 +452,10 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = reqPlayYes(c, cmdMsg)
 		case REQ_PALY_NO:
 			cmdMsgResp = reqPlayNo(c, cmdMsg)
+		case REQ_INIT_DATA:
+			cmdMsgResp = initData(c, cmdMsg)
+		case REQ_GIVEUP:
+			cmdMsgResp = giveUp(c, cmdMsg)
 		}
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
