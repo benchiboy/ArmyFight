@@ -22,6 +22,10 @@ const QUERY_RESULT_RESP = 2012
 const SEND_MSG = 1003
 const SEND_MSG_RESP = 2003
 
+//发送语音
+const SEND_VOICE = 1034
+const SEND_VOICE_RESP = 2034
+
 //查看在线用户
 const GET_USERS = 1004
 const GET_USERS_RESP = 2004
@@ -45,6 +49,10 @@ const REQ_GIVEUP_RESP = 2007
 //初始数据
 const REQ_INIT_DATA = 1030
 const REQ_INIT_DATA_RESP = 2030
+
+//开始游戏
+const START_GAME = 1035
+const START_GAME_RESP = 2035
 
 const STATUS_ONLIE_READY = 1
 const STATUS_ONLIE_DONG = 1

@@ -19,7 +19,7 @@ var (
 	GConn2IdMap = &sync.Map{}
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "10.89.4.244:8080", "http service address")
 var upgrader = websocket.Upgrader{} // use default options
 
 /*
@@ -152,6 +152,17 @@ func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 }
 
 /*
+	玩家发送语音
+*/
+func sendVoice(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>SendVoice============>")
+	var cmdMsgResp CommandMsgResp
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp.Type = SEND_VOICE_RESP
+	return cmdMsgResp
+}
+
+/*
 	得到用户列表
 */
 func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
@@ -240,6 +251,18 @@ func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	proxyMsg(c, cmdMsg)
 
 	cmdMsgResp.Type = REQ_PLAY_RESP
+	return cmdMsgResp
+}
+
+/*
+	开始游戏
+*/
+func startGame(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>startGame============>")
+	var cmdMsgResp CommandMsgResp
+	proxyMsg(c, cmdMsg)
+
+	cmdMsgResp.Type = START_GAME_RESP
 	return cmdMsgResp
 }
 
@@ -407,7 +430,6 @@ func disconnClear(c *websocket.Conn) {
 	//删除SN对应的缓存
 	GId2ConnMap.Delete(playId)
 	GConn2IdMap.Delete(c)
-
 	log.Println("处理断开之后的清理")
 }
 
@@ -444,6 +466,8 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = signIn(c, cmdMsg)
 		case SEND_MSG:
 			cmdMsgResp = sendMsg(c, cmdMsg)
+		case SEND_VOICE:
+			cmdMsgResp = sendVoice(c, cmdMsg)
 		case GET_USERS:
 			cmdMsgResp = getUsers(c, cmdMsg)
 		case REQ_PLAY:
@@ -456,6 +480,8 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = initData(c, cmdMsg)
 		case REQ_GIVEUP:
 			cmdMsgResp = giveUp(c, cmdMsg)
+		case START_GAME:
+			cmdMsgResp = startGame(c, cmdMsg)
 		}
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
