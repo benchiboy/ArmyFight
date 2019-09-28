@@ -161,6 +161,7 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	GId2ConnMap.Range(func(k, v interface{}) bool {
 		p, _ := v.(Player)
 		var u User
+		log.Println(p.NickName)
 		if cmdMsg.NickName != p.NickName {
 			u.UserId = fmt.Sprintf("%s", k)
 			u.NickName = p.NickName
@@ -373,7 +374,6 @@ func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	mString := string(mjson)
 	fmt.Printf("print mString:%s", mString)
 	cmdMsgResp.Message = mString
-
 	cmdMsgResp.Type = REQ_INIT_DATA_RESP
 	return cmdMsgResp
 }
