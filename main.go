@@ -19,7 +19,7 @@ var (
 	GConn2IdMap = &sync.Map{}
 )
 
-var addr = flag.String("addr", "10.89.4.244:8080", "http service address")
+var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
 var upgrader = websocket.Upgrader{} // use default options
 
 /*
