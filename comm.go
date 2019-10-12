@@ -10,9 +10,17 @@ import (
 const SIGN_IN = 1000
 const SIGN_IN_RESP = 2000
 
+//机器人签到
+const ROBOT_SIGN_IN = 1066
+const ROBOT_SIGN_IN_RESP = 2066
+
 //出牌
 const PLAY_CARD = 1001
 const PLAY_CARD_RESP = 2001
+
+//请求出牌
+const REQ_PLAY_CARD = 1055
+const REQ_PLAY_CARD_RESP = 2055
 
 //查询结果
 const QUERY_RESULT = 1012
@@ -35,12 +43,12 @@ const REQ_PLAY = 1005
 const REQ_PLAY_RESP = 2005
 
 //玩家同意
-const REQ_PALY_YES = 1006
-const REQ_PALY_YES_RESP = 2006
+const REQ_PLAY_YES = 1006
+const REQ_PLAY_YES_RESP = 2006
 
 //玩家拒绝
-const REQ_PALY_NO = 1010
-const REQ_PALY_NO_RESP = 2010
+const REQ_PLAY_NO = 1010
+const REQ_PLAY_NO_RESP = 2010
 
 //主动认输
 const REQ_GIVEUP = 1007
@@ -54,10 +62,33 @@ const REQ_INIT_DATA_RESP = 2030
 const START_GAME = 1035
 const START_GAME_RESP = 2035
 
+//改变用户
+const CHANGE_USER = 1040
+const CHANGE_USER_RESP = 2040
+
+//下线通知
+const OFFLINE_MSG = 1050
+const OFFLINE_MSG_RESP = 2050
+
+//签到类型
+const ROBOT_TYPE = 1
+const HUMAN_TYPE = 2
+
 const STATUS_ONLIE_READY = 1
 const STATUS_ONLIE_DONG = 1
 const STATUS_ONLIN_IDLE = 2
 const STATUS_OFFLINE = 3
+
+const SYSTEM_NAME = "MyBoss"
+
+/*
+	发送消息命令
+*/
+type CardInfo struct {
+	Count int    `json:"count"`
+	SCore int    `json:"score"`
+	Name  string `json:"name"`
+}
 
 /*
 	发送消息命令
@@ -89,6 +120,7 @@ type User struct {
 	UserId     string    `json:"userid"`
 	NickName   string    `json:"nickname"`
 	Status     int       `json:"status"`
+	PlayerType int       `json:"playertype"`
 	Avatar     string    `json:"avatar"`
 	Memo       string    `json:"memo"`
 	LoginTime  time.Time `json:"logintime"`
@@ -105,7 +137,9 @@ type Player struct {
 	SignInTime time.Time
 	NickName   string
 	CurrSCore  int
+	PlayerType int
 	CurrCard   string
+	ToNickName string
 	Status     int
 	LoginTime  time.Time
 	Avatar     string

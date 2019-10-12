@@ -16,10 +16,13 @@ import (
 
 var (
 	GId2ConnMap = &sync.Map{}
+	GId2IdMap   = &sync.Map{}
 	GConn2IdMap = &sync.Map{}
 )
 
-var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
+//var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
+var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
+
 var upgrader = websocket.Upgrader{} // use default options
 
 /*
@@ -27,9 +30,8 @@ var upgrader = websocket.Upgrader{} // use default options
 	1:从数据库查询用户的信息 同步到内存中
 
 */
-func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SignIn============>")
-
 	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Type = SIGN_IN_RESP
 	cmdMsgResp.Success = true
@@ -41,10 +43,11 @@ func signIn(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 		return cmdMsgResp
 	}
 	GId2ConnMap.Store(cmdMsg.NickName, Player{CurrConn: c, SignInTime: time.Now(),
-		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE})
+		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE, PlayerType: playerType})
 	GConn2IdMap.Store(c, cmdMsg.NickName)
 
 	cmdMsgResp.FromId = cmdMsg.FromId
+	cmdMsgResp.ToId = cmdMsg.FromId
 	cmdMsgResp.Message = "Sign In Success!"
 	return cmdMsgResp
 }
@@ -64,6 +67,22 @@ func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	cmdMsgResp.Message = cmdMsg.Message
 	cmdMsgResp.Role = getRole(cmdMsg.FromId)
 	cmdMsgResp.Type = PLAY_CARD_RESP
+
+	return cmdMsgResp
+}
+
+/*
+	玩家发牌处理
+*/
+
+func reqPlayCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>reqPlayCard============>")
+
+	proxyMsg(c, cmdMsg)
+
+	var cmdMsgResp CommandMsgResp
+	cmdMsgResp.Message = cmdMsg.Message
+	cmdMsgResp.Type = REQ_PLAY_CARD_RESP
 
 	return cmdMsgResp
 }
@@ -172,11 +191,13 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	GId2ConnMap.Range(func(k, v interface{}) bool {
 		p, _ := v.(Player)
 		var u User
+		log.Println(p.NickName)
 		if cmdMsg.NickName != p.NickName {
 			u.UserId = fmt.Sprintf("%s", k)
 			u.NickName = p.NickName
 			u.Avatar = p.Avatar
 			u.Candy = p.Candy
+			u.PlayerType = p.PlayerType
 			u.Decoration = p.Decoration
 			u.Icecream = p.Icecream
 			u.LoginTime = p.SignInTime
@@ -205,10 +226,12 @@ func proxyMsg(c *websocket.Conn, cmdMsg CommandMsg) {
 	playerObj, ok := GId2ConnMap.Load(cmdMsg.ToId)
 	if !ok {
 		log.Println(cmdMsg.ToId + "缓存信息没有获取到")
+		return
 	}
 	toPlayer, ret := playerObj.(Player)
 	if !ret {
 		log.Println("类型断言错误")
+		return
 	}
 	if reqBuf, err := json.Marshal(cmdMsg); err != nil {
 		log.Println(err)
@@ -242,13 +265,24 @@ func proxyMsgResp(toId string, cmdMsgResp CommandMsgResp) {
 }
 
 /*
+	改变用户通知
+*/
+func changeUser(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>changeUser============>", cmdMsg.FromId, cmdMsg.ToId)
+	var cmdMsgResp CommandMsgResp
+
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp.Type = CHANGE_USER_RESP
+	return cmdMsgResp
+}
+
+/*
 	请求玩家
 */
 func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>reqPlay============>")
 	var cmdMsgResp CommandMsgResp
 	proxyMsg(c, cmdMsg)
-
 	cmdMsgResp.Type = REQ_PLAY_RESP
 	return cmdMsgResp
 }
@@ -280,7 +314,7 @@ func setRole(playerId string, role string) {
 	}
 	player.Role = role
 	GId2ConnMap.Store(playerId, player)
-	log.Println("=========>setRole============>", playerId)
+	//log.Println("=========>setRole============>", playerId)
 }
 
 /*
@@ -338,7 +372,7 @@ func getCard(playerId string) (int, string) {
 	另一玩家答应请求
 */
 func setStatus(playerId string, status int) {
-	log.Println("=========>setStatus============>")
+	//log.Println("=========>setStatus============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
@@ -348,8 +382,28 @@ func setStatus(playerId string, status int) {
 		log.Println("类型断言错误")
 	}
 	player.Status = status
+
 	GId2ConnMap.Store(playerId, player)
-	log.Println("=========>setStatus============>", playerId)
+	//log.Println("=========>setStatus============>", playerId)
+}
+
+/*
+	存储另一玩家的信息
+*/
+func setToNickName(playerId string, toNickName string) {
+	//log.Println("=========>setStatus============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	player.ToNickName = toNickName
+
+	GId2ConnMap.Store(playerId, player)
+	//log.Println("=========>setStatus============>", playerId)
 }
 
 /*
@@ -359,16 +413,20 @@ func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>reqPlayYes============>")
 	var cmdMsgResp CommandMsgResp
 	cmdMsg.Message = "对方同意了"
+
 	proxyMsg(c, cmdMsg)
 
 	//初始玩家双方的状态
 	setStatus(cmdMsg.FromId, STATUS_ONLIE_READY)
 	setStatus(cmdMsg.ToId, STATUS_ONLIE_READY)
 
+	setToNickName(cmdMsg.FromId, cmdMsg.ToId)
+	setToNickName(cmdMsg.ToId, cmdMsg.FromId)
+
 	setRole(cmdMsg.FromId, "S")
 	setRole(cmdMsg.ToId, "M")
 
-	cmdMsgResp.Type = REQ_PALY_YES_RESP
+	cmdMsgResp.Type = REQ_PLAY_YES_RESP
 	return cmdMsgResp
 }
 
@@ -381,7 +439,7 @@ func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	cmdMsg.Message = "对方拒绝了"
 	proxyMsg(c, cmdMsg)
 
-	cmdMsgResp.Type = REQ_PALY_NO_RESP
+	cmdMsgResp.Type = REQ_PLAY_NO_RESP
 	return cmdMsgResp
 }
 
@@ -391,12 +449,24 @@ func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>initData============>")
 	var cmdMsgResp CommandMsgResp
-	cardMap := map[string]int{"工兵": 3, "排长": 2}
-	mjson, _ := json.Marshal(cardMap)
-	mString := string(mjson)
-	fmt.Printf("print mString:%s", mString)
+	cardMap := map[string]CardInfo{
+		"gongbing":  CardInfo{Count: 3, SCore: 1, Name: "工兵"},
+		"paizhang":  CardInfo{Count: 2, SCore: 2, Name: "排长"},
+		"lianzhang": CardInfo{Count: 2, SCore: 3, Name: "连长"},
+		"yingzhang": CardInfo{Count: 2, SCore: 4, Name: "营长"},
+		"tuanzhang": CardInfo{Count: 2, SCore: 5, Name: "团长"},
+		"lvzhang":   CardInfo{Count: 2, SCore: 6, Name: "旅长"},
+		"shizhang":  CardInfo{Count: 2, SCore: 7, Name: "师长"},
+		"junzhang":  CardInfo{Count: 1, SCore: 8, Name: "军长"},
+		"siling":    CardInfo{Count: 1, SCore: 9, Name: "司令"},
+		"junqi":     CardInfo{Count: 1, SCore: 0, Name: "军旗"},
+		"dilei":     CardInfo{Count: 3, SCore: 100, Name: "地雷"},
+		"zhadan":    CardInfo{Count: 2, SCore: 101, Name: "炸弹"}}
+	initJson, _ := json.Marshal(cardMap)
+	mString := string(initJson)
 	cmdMsgResp.Message = mString
-
+	cmdMsgResp.FromId = SYSTEM_NAME
+	cmdMsgResp.ToId = cmdMsg.FromId
 	cmdMsgResp.Type = REQ_INIT_DATA_RESP
 	return cmdMsgResp
 }
@@ -421,16 +491,39 @@ func disconnClear(c *websocket.Conn) {
 	playIdObj, ok := GConn2IdMap.Load(c)
 	if !ok {
 		log.Println("缓存信息没有获取到")
+		return
 	}
 	playId, ret := playIdObj.(string)
 	if !ret {
 		log.Println("类型断言错误")
 		return
 	}
+
+	playerObj, ok := GId2ConnMap.Load(playId)
+	if !ok {
+		log.Println(playId, "缓存信息没有获取到")
+		return
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+		return
+	}
+
 	//删除SN对应的缓存
 	GId2ConnMap.Delete(playId)
 	GConn2IdMap.Delete(c)
 	log.Println("处理断开之后的清理")
+	//如果此用户有关联用户，需要提醒对方
+	if player.ToNickName != "" {
+		var cmdMsg CommandMsg
+		cmdMsg.Type = OFFLINE_MSG
+		cmdMsg.FromId = playId
+		cmdMsg.Message = "下线通知"
+		cmdMsg.ToId = player.ToNickName
+		proxyMsg(nil, cmdMsg)
+	}
+
 }
 
 /*
@@ -440,6 +533,7 @@ func disconnClear(c *websocket.Conn) {
 func gameHandle(w http.ResponseWriter, r *http.Request) {
 	log.Println("==================>")
 	c, err := upgrader.Upgrade(w, r, nil)
+
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
@@ -449,7 +543,6 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 	var cmdMsgResp CommandMsgResp
 	for {
 		mt, message, err := c.ReadMessage()
-		log.Println(string(message))
 		if err != nil {
 			disconnClear(c)
 			break
@@ -463,7 +556,9 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		case QUERY_RESULT:
 			cmdMsgResp = queryResult(c, cmdMsg)
 		case SIGN_IN:
-			cmdMsgResp = signIn(c, cmdMsg)
+			cmdMsgResp = signIn(c, HUMAN_TYPE, cmdMsg)
+		case ROBOT_SIGN_IN:
+			cmdMsgResp = signIn(c, ROBOT_TYPE, cmdMsg)
 		case SEND_MSG:
 			cmdMsgResp = sendMsg(c, cmdMsg)
 		case SEND_VOICE:
@@ -472,9 +567,9 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = getUsers(c, cmdMsg)
 		case REQ_PLAY:
 			cmdMsgResp = reqPlay(c, cmdMsg)
-		case REQ_PALY_YES:
+		case REQ_PLAY_YES:
 			cmdMsgResp = reqPlayYes(c, cmdMsg)
-		case REQ_PALY_NO:
+		case REQ_PLAY_NO:
 			cmdMsgResp = reqPlayNo(c, cmdMsg)
 		case REQ_INIT_DATA:
 			cmdMsgResp = initData(c, cmdMsg)
@@ -482,6 +577,10 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = giveUp(c, cmdMsg)
 		case START_GAME:
 			cmdMsgResp = startGame(c, cmdMsg)
+		case CHANGE_USER:
+			cmdMsgResp = changeUser(c, cmdMsg)
+		case REQ_PLAY_CARD:
+			cmdMsgResp = reqPlayCard(c, cmdMsg)
 		}
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
@@ -494,13 +593,11 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("=====>ArmFight======>")
+	fmt.Println("====>ArmyFight Starting....===>")
 
 	http.HandleFunc("/echo", gameHandle)
 
 	http.HandleFunc("/getUsers", gameHandle)
 
 	log.Fatal(http.ListenAndServe(*addr, nil))
-	fmt.Println("hello")
-
 }
