@@ -93,9 +93,15 @@ func reqPlayCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 
 func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>queryResult============>")
-	sScore, sCard := getCard(cmdMsg.FromId)
-	mScore, mCard := getCard(cmdMsg.ToId)
-
+	var mScore, sScore int
+	var sCard, mCard string
+	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
+		mScore, mCard = getCard(cmdMsg.FromId)
+		sScore, sCard = getCard(cmdMsg.ToId)
+	} else {
+		sScore, sCard = getCard(cmdMsg.FromId)
+		mScore, mCard = getCard(cmdMsg.ToId)
+	}
 	var cmdMsgResp CommandMsgResp
 	if sScore > mScore {
 		//出现炸弹，地址 和人员相碰的情况
@@ -147,12 +153,23 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	cmdMsgResp.Type = QUERY_RESULT_RESP
 	cmdMsgResp.Message = mCard
 	cmdMsgResp.AnotherMsg = sCard
+	cmdMsgResp.ToId = cmdMsg.ToId
+	cmdMsgResp.FromId = cmdMsg.FromId
 
-	cmdMsgResp.Role = "M"
-
+	fmt.Println("=====>", cmdMsg.FromId, cmdMsg.ToId)
+	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
+		cmdMsgResp.Role = "S"
+	} else {
+		cmdMsgResp.Role = "M"
+	}
 	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
 
-	cmdMsgResp.Role = "S"
+	if getPlayerType(cmdMsg.FromId) == ROBOT_TYPE {
+		cmdMsgResp.Role = "M"
+	} else {
+		cmdMsgResp.Role = "S"
+	}
+
 	cmdMsgResp.Message = sCard
 	cmdMsgResp.AnotherMsg = mCard
 	return cmdMsgResp
@@ -334,6 +351,22 @@ func getRole(playerId string) string {
 }
 
 /*
+	另一玩家答应请求
+*/
+func getPlayerType(playerId string) int {
+	log.Println("=========>setRole============>")
+	playerObj, ok := GId2ConnMap.Load(playerId)
+	if !ok {
+		log.Println(playerId, "缓存信息没有获取到")
+	}
+	player, ret := playerObj.(Player)
+	if !ret {
+		log.Println("类型断言错误")
+	}
+	return player.PlayerType
+}
+
+/*
 	存储玩家的出牌
 */
 func setCard(playerId string, score int, card string) {
@@ -425,6 +458,9 @@ func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 
 	setRole(cmdMsg.FromId, "S")
 	setRole(cmdMsg.ToId, "M")
+
+	fmt.Println(cmdMsg.FromId+"角色：", getRole(cmdMsg.FromId))
+	fmt.Println(cmdMsg.ToId+"角色：", getRole(cmdMsg.ToId))
 
 	cmdMsgResp.Type = REQ_PLAY_YES_RESP
 	return cmdMsgResp
