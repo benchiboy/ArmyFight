@@ -5,11 +5,20 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
-
 	"time"
+
+	"ArmFight/afuser"
+	"ArmFight/dbutil"
+
+	goconf "github.com/pantsing/goconf"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/gorilla/websocket"
 )
@@ -18,6 +27,11 @@ var (
 	GId2ConnMap = &sync.Map{}
 	GId2IdMap   = &sync.Map{}
 	GConn2IdMap = &sync.Map{}
+	dbUrl       string
+	ccdbUrl     string
+	listenPort  int
+	idleConns   int
+	openConns   int
 )
 
 //var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
@@ -628,12 +642,91 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+   用户注册处理函数
+*/
+
+func singup(w http.ResponseWriter, r *http.Request) {
+	log.Println("==============>singup==========>")
+	t1 := time.Now()
+	var signup SignUp
+	var singupResp SignUpResp
+	reqBuf, err := ioutil.ReadAll(r.Body)
+	if err = json.Unmarshal(reqBuf, &signup); err != nil {
+		log.Println("解析JSON错误", err)
+		buf, _ := json.Marshal(singupResp)
+		w.Write(buf)
+		return
+	}
+	defer r.Body.Close()
+	log.Println(t1, "=====>", signup)
+	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+	var search afuser.Search
+	search.UserName = signup.UserName
+	if _, err = user.Get(search); err == nil {
+		singupResp.ResultCode = "4000"
+		singupResp.ResultMsg = "用户已经存在"
+		buf, _ := json.Marshal(singupResp)
+		w.Write(buf)
+		return
+	}
+	var e afuser.AfUser
+	e.UserName = signup.UserName
+	e.UserPwd = signup.Pwd
+	e.Problem = signup.Problem
+	e.Answer = signup.Answer
+	e.InsertDate = time.Now().Unix()
+	e.UserId = time.Now().Unix()
+	user.InsertEntity(e, nil)
+
+	singupResp.ResultCode = "0000"
+	singupResp.ResultMsg = "注册成功！"
+	buf, _ := json.Marshal(singupResp)
+	w.Write(buf)
+	return
+}
+
+/*
+   重置密码函数
+*/
+
+func resetpwd(w http.ResponseWriter, r *http.Request) {
+	log.Println("==================>")
+}
+
+func init() {
+	log.SetFlags(log.Ldate | log.Lshortfile | log.Lmicroseconds)
+	log.SetOutput(io.MultiWriter(os.Stdout, &lumberjack.Logger{
+		Filename:   "ArmyFight.log",
+		MaxSize:    500, // megabytes
+		MaxBackups: 50,
+		MaxAge:     90, //days
+	}))
+	envConf := flag.String("env", "config-ci.json", "select a environment config file")
+	flag.Parse()
+	log.Println("config file ==", *envConf)
+	c, err := goconf.New(*envConf)
+	if err != nil {
+		log.Fatalln("读配置文件出错", err)
+	}
+
+	//填充配置文件
+	c.Get("/config/LISTEN_PORT", &listenPort)
+	c.Get("/config/DB_URL", &dbUrl)
+	c.Get("/config/OPEN_CONNS", &openConns)
+	c.Get("/config/IDLE_CONNS", &idleConns)
+}
+
 func main() {
 	fmt.Println("====>ArmyFight Starting....===>")
 
-	http.HandleFunc("/echo", gameHandle)
+	dbutil.InitDB(dbUrl, idleConns, openConns)
 
-	http.HandleFunc("/getUsers", gameHandle)
+	http.HandleFunc("/echo", gameHandle)
+	http.HandleFunc("/army/api/checkuser", singup)
+	http.HandleFunc("/army/api/getproblem", singup)
+	http.HandleFunc("/army/api/signup", singup)
+	http.HandleFunc("/army/api/resetpwd", resetpwd)
 
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }

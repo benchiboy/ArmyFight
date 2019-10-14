@@ -1,0 +1,454 @@
+2019/10/14 15:35:59.587717 main.go:652: config file == config-ci.json
+2019/10/14 15:38:50.751415 main.go:668: config file == config-ci.json
+2019/10/14 16:45:56.327410 main.go:668: config file == config-ci.json
+2019/10/14 16:52:19.092340 main.go:668: config file == config-ci.json
+2019/10/14 16:53:38.569786 main.go:668: config file == config-ci.json
+2019/10/14 16:59:41.897364 main.go:680: config file == config-ci.json
+2019/10/14 17:04:42.108258 main.go:680: config file == config-ci.json
+2019/10/14 17:05:02.415185 main.go:680: config file == config-ci.json
+2019/10/14 17:06:12.181923 main.go:680: config file == config-ci.json
+2019/10/14 17:06:47.213299 main.go:647: ==============>singup==========>
+2019/10/14 17:06:47.213528 main.go:653: 解析JSON错误
+2019/10/14 17:09:06.998883 main.go:647: ==============>singup==========>
+2019/10/14 17:09:06.999078 main.go:653: 解析JSON错误
+2019/10/14 17:11:08.437444 main.go:647: ==============>singup==========>
+2019/10/14 17:11:08.437639 main.go:653: 解析JSON错误
+2019/10/14 17:11:14.334128 main.go:647: ==============>singup==========>
+2019/10/14 17:11:14.336064 main.go:653: 解析JSON错误
+2019/10/14 17:11:20.516442 main.go:647: ==============>singup==========>
+2019/10/14 17:11:20.516740 main.go:653: 解析JSON错误
+2019/10/14 17:14:18.366572 main.go:647: ==============>singup==========>
+2019/10/14 17:14:18.366780 main.go:653: 解析JSON错误
+2019/10/14 17:14:20.628433 main.go:647: ==============>singup==========>
+2019/10/14 17:14:20.628575 main.go:653: 解析JSON错误
+2019/10/14 17:14:21.160326 main.go:647: ==============>singup==========>
+2019/10/14 17:14:21.160384 main.go:653: 解析JSON错误
+2019/10/14 17:14:21.680396 main.go:647: ==============>singup==========>
+2019/10/14 17:14:21.680455 main.go:653: 解析JSON错误
+2019/10/14 17:14:30.976460 main.go:647: ==============>singup==========>
+2019/10/14 17:14:30.976525 main.go:653: 解析JSON错误
+2019/10/14 17:14:31.464577 main.go:647: ==============>singup==========>
+2019/10/14 17:14:31.464657 main.go:653: 解析JSON错误
+2019/10/14 17:15:44.728630 main.go:647: ==============>singup==========>
+2019/10/14 17:15:44.729032 main.go:653: 解析JSON错误
+2019/10/14 17:16:53.450715 main.go:680: config file == config-ci.json
+2019/10/14 17:16:55.607991 main.go:647: ==============>singup==========>
+2019/10/14 17:16:55.608134 main.go:653: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:02.720673 main.go:681: config file == config-ci.json
+2019/10/14 17:18:04.983813 main.go:647: ==============>singup==========>
+2019/10/14 17:18:04.983957 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:07.055387 main.go:647: ==============>singup==========>
+2019/10/14 17:18:07.055442 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:07.623629 main.go:647: ==============>singup==========>
+2019/10/14 17:18:07.623728 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:24.791113 main.go:647: ==============>singup==========>
+2019/10/14 17:18:24.791198 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:25.519369 main.go:647: ==============>singup==========>
+2019/10/14 17:18:25.519439 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:26.175527 main.go:647: ==============>singup==========>
+2019/10/14 17:18:26.175609 main.go:654: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:18:59.916305 main.go:647: ==============>singup==========>
+2019/10/14 17:19:00.001352 main.go:660: 2019-10-14 17:19:00.001188 +0800 CST m=+57.281968461 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:02.847186 main.go:647: ==============>singup==========>
+2019/10/14 17:19:02.847510 main.go:660: 2019-10-14 17:19:02.847302 +0800 CST m=+60.128095887 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:04.783362 main.go:647: ==============>singup==========>
+2019/10/14 17:19:04.783594 main.go:660: 2019-10-14 17:19:04.783505 +0800 CST m=+62.064308142 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:05.391339 main.go:647: ==============>singup==========>
+2019/10/14 17:19:05.391548 main.go:660: 2019-10-14 17:19:05.391451 +0800 CST m=+62.672256937 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:06.087440 main.go:647: ==============>singup==========>
+2019/10/14 17:19:06.087671 main.go:660: 2019-10-14 17:19:06.087481 +0800 CST m=+63.368290147 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:06.647132 main.go:647: ==============>singup==========>
+2019/10/14 17:19:06.647312 main.go:660: 2019-10-14 17:19:06.647209 +0800 CST m=+63.928020984 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:06.991492 main.go:647: ==============>singup==========>
+2019/10/14 17:19:06.991812 main.go:660: 2019-10-14 17:19:06.991557 +0800 CST m=+64.272370650 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:07.278995 main.go:647: ==============>singup==========>
+2019/10/14 17:19:07.279306 main.go:660: 2019-10-14 17:19:07.279064 +0800 CST m=+64.559879198 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:09.631200 main.go:647: ==============>singup==========>
+2019/10/14 17:19:09.631342 main.go:660: 2019-10-14 17:19:09.63124 +0800 CST m=+66.912066632 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:19:17.087402 main.go:647: ==============>singup==========>
+2019/10/14 17:19:17.087655 main.go:660: 2019-10-14 17:19:17.087559 +0800 CST m=+74.368421430 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:22:18.819562 main.go:683: config file == config-ci.json
+2019/10/14 17:22:18.829198 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:22:18.829286 main.go:700: <==========Init Device Online Status==========>
+2019/10/14 17:22:36.356837 main.go:683: config file == config-ci.json
+2019/10/14 17:22:36.367644 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:41:43.151109 main.go:688: config file == config-ci.json
+2019/10/14 17:41:43.163974 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:44:02.371311 main.go:689: config file == config-ci.json
+2019/10/14 17:44:02.382893 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:44:05.314215 main.go:650: ==============>singup==========>
+2019/10/14 17:44:05.314339 main.go:656: 解析JSON错误 unexpected end of JSON input
+2019/10/14 17:44:18.313926 main.go:650: ==============>singup==========>
+2019/10/14 17:44:18.314122 main.go:662: 2019-10-14 17:44:18.313972 +0800 CST m=+15.944221832 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:44:18.314165 afuser.go:571: Insert ===> Insert into  af_user(user_name,user_pwd)  values(?,?)
+2019/10/14 17:44:18.328786 afuser.go:593: Insert ===> LastInsertId: 1
+2019/10/14 17:44:18.328850 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:44:18.328895 afuser.go:600: Elapsed===> 14.737379ms
+2019/10/14 17:44:19.649791 main.go:650: ==============>singup==========>
+2019/10/14 17:44:19.650027 main.go:662: 2019-10-14 17:44:19.649837 +0800 CST m=+17.280088650 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:44:19.650086 afuser.go:571: Insert ===> Insert into  af_user(user_name,user_pwd)  values(?,?)
+2019/10/14 17:44:19.655428 afuser.go:593: Insert ===> LastInsertId: 2
+2019/10/14 17:44:19.655510 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:44:19.655529 afuser.go:600: Elapsed===> 5.444596ms
+2019/10/14 17:44:20.169618 main.go:650: ==============>singup==========>
+2019/10/14 17:44:20.169849 main.go:662: 2019-10-14 17:44:20.169739 +0800 CST m=+17.799991768 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:44:20.169885 afuser.go:571: Insert ===> Insert into  af_user(user_name,user_pwd)  values(?,?)
+2019/10/14 17:44:20.176448 afuser.go:593: Insert ===> LastInsertId: 3
+2019/10/14 17:44:20.176591 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:44:20.176630 afuser.go:600: Elapsed===> 6.742409ms
+2019/10/14 17:47:12.446862 main.go:691: config file == config-ci.json
+2019/10/14 17:47:12.458863 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:47:15.130128 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.130359 main.go:662: 2019-10-14 17:47:15.130188 +0800 CST m=+2.684623859 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.130403 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.144002 afuser.go:593: Insert ===> LastInsertId: 4
+2019/10/14 17:47:15.144046 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.144060 afuser.go:600: Elapsed===> 13.669328ms
+2019/10/14 17:47:15.305544 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.305910 main.go:662: 2019-10-14 17:47:15.305797 +0800 CST m=+2.860232798 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.305972 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.311585 afuser.go:593: Insert ===> LastInsertId: 5
+2019/10/14 17:47:15.311665 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.311678 afuser.go:600: Elapsed===> 5.723341ms
+2019/10/14 17:47:15.465384 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.465658 main.go:662: 2019-10-14 17:47:15.46555 +0800 CST m=+3.019985683 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.465702 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.471383 afuser.go:593: Insert ===> LastInsertId: 6
+2019/10/14 17:47:15.471446 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.471460 afuser.go:600: Elapsed===> 5.76478ms
+2019/10/14 17:47:15.633297 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.633451 main.go:662: 2019-10-14 17:47:15.633346 +0800 CST m=+3.187782690 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.633507 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.639140 afuser.go:593: Insert ===> LastInsertId: 7
+2019/10/14 17:47:15.639213 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.639230 afuser.go:600: Elapsed===> 5.730213ms
+2019/10/14 17:47:15.793423 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.793615 main.go:662: 2019-10-14 17:47:15.793533 +0800 CST m=+3.347969789 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.793657 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.800927 afuser.go:593: Insert ===> LastInsertId: 8
+2019/10/14 17:47:15.801044 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.801059 afuser.go:600: Elapsed===> 7.410676ms
+2019/10/14 17:47:15.953331 main.go:650: ==============>singup==========>
+2019/10/14 17:47:15.953611 main.go:662: 2019-10-14 17:47:15.953371 +0800 CST m=+3.507808053 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:15.953645 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:15.959619 afuser.go:593: Insert ===> LastInsertId: 9
+2019/10/14 17:47:15.959684 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:15.959700 afuser.go:600: Elapsed===> 6.055154ms
+2019/10/14 17:47:16.113609 main.go:650: ==============>singup==========>
+2019/10/14 17:47:16.113785 main.go:662: 2019-10-14 17:47:16.113683 +0800 CST m=+3.668120304 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:16.113844 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:16.119912 afuser.go:593: Insert ===> LastInsertId: 10
+2019/10/14 17:47:16.119985 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:16.120002 afuser.go:600: Elapsed===> 6.168223ms
+2019/10/14 17:47:16.257687 main.go:650: ==============>singup==========>
+2019/10/14 17:47:16.257882 main.go:662: 2019-10-14 17:47:16.257775 +0800 CST m=+3.812211831 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:47:16.257938 afuser.go:571: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 17:47:16.263620 afuser.go:593: Insert ===> LastInsertId: 11
+2019/10/14 17:47:16.264045 afuser.go:596: Insert ===> RowsAffected: 1
+2019/10/14 17:47:16.264061 afuser.go:600: Elapsed===> 6.129902ms
+2019/10/14 17:51:07.881578 main.go:705: config file == config-ci.json
+2019/10/14 17:51:07.893955 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:51:21.172284 main.go:650: ==============>singup==========>
+2019/10/14 17:51:21.172535 main.go:662: 2019-10-14 17:51:21.172324 +0800 CST m=+13.292066832 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:21.172581 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:21.184124 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:25.456904 main.go:650: ==============>singup==========>
+2019/10/14 17:51:25.457084 main.go:662: 2019-10-14 17:51:25.457005 +0800 CST m=+17.576754011 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:25.457113 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:25.469451 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:26.345165 main.go:650: ==============>singup==========>
+2019/10/14 17:51:26.345338 main.go:662: 2019-10-14 17:51:26.345272 +0800 CST m=+18.465022884 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:26.345371 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:26.348138 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:26.944955 main.go:650: ==============>singup==========>
+2019/10/14 17:51:26.945173 main.go:662: 2019-10-14 17:51:26.945053 +0800 CST m=+19.064803869 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:26.945192 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:26.948624 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:27.584990 main.go:650: ==============>singup==========>
+2019/10/14 17:51:27.585181 main.go:662: 2019-10-14 17:51:27.585132 +0800 CST m=+19.704884101 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:27.585207 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:27.600091 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:28.128784 main.go:650: ==============>singup==========>
+2019/10/14 17:51:28.129048 main.go:662: 2019-10-14 17:51:28.128825 +0800 CST m=+20.248578053 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:28.129074 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:28.132272 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:28.577471 main.go:650: ==============>singup==========>
+2019/10/14 17:51:28.577801 main.go:662: 2019-10-14 17:51:28.577572 +0800 CST m=+20.697325414 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:28.577824 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:28.582496 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:28.960865 main.go:650: ==============>singup==========>
+2019/10/14 17:51:28.961066 main.go:662: 2019-10-14 17:51:28.96097 +0800 CST m=+21.080724235 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:28.961090 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:28.965919 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:29.136926 main.go:650: ==============>singup==========>
+2019/10/14 17:51:29.137131 main.go:662: 2019-10-14 17:51:29.137027 +0800 CST m=+21.256781829 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:29.137158 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:29.140324 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:29.296971 main.go:650: ==============>singup==========>
+2019/10/14 17:51:29.297165 main.go:662: 2019-10-14 17:51:29.297106 +0800 CST m=+21.416860980 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:29.297188 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:29.300901 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:29.464914 main.go:650: ==============>singup==========>
+2019/10/14 17:51:29.465122 main.go:662: 2019-10-14 17:51:29.465023 +0800 CST m=+21.584778284 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:29.465147 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:29.468785 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:40.649149 main.go:650: ==============>singup==========>
+2019/10/14 17:51:40.649345 main.go:662: 2019-10-14 17:51:40.649296 +0800 CST m=+32.769067021 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:40.649373 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:40.660464 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:41.281157 main.go:650: ==============>singup==========>
+2019/10/14 17:51:41.281399 main.go:662: 2019-10-14 17:51:41.281256 +0800 CST m=+33.401027834 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:41.281435 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:41.284882 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:41.705136 main.go:650: ==============>singup==========>
+2019/10/14 17:51:41.705307 main.go:662: 2019-10-14 17:51:41.705267 +0800 CST m=+33.825039495 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:41.705333 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:41.711850 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:42.064993 main.go:650: ==============>singup==========>
+2019/10/14 17:51:42.065194 main.go:662: 2019-10-14 17:51:42.065099 +0800 CST m=+34.184872565 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:42.065218 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:42.069608 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:42.393053 main.go:650: ==============>singup==========>
+2019/10/14 17:51:42.393235 main.go:662: 2019-10-14 17:51:42.393153 +0800 CST m=+34.512926429 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:42.393252 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:42.397611 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:43.080898 main.go:650: ==============>singup==========>
+2019/10/14 17:51:43.081213 main.go:662: 2019-10-14 17:51:43.081009 +0800 CST m=+35.200783528 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:43.081239 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:43.093448 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:45.984843 main.go:650: ==============>singup==========>
+2019/10/14 17:51:45.985042 main.go:662: 2019-10-14 17:51:45.984948 +0800 CST m=+38.104727235 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:45.985066 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:45.997499 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:46.601076 main.go:650: ==============>singup==========>
+2019/10/14 17:51:46.601308 main.go:662: 2019-10-14 17:51:46.601221 +0800 CST m=+38.721001550 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:46.601329 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:46.604594 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:51:53.225206 main.go:650: ==============>singup==========>
+2019/10/14 17:51:53.225403 main.go:662: 2019-10-14 17:51:53.225309 +0800 CST m=+45.345098178 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:51:53.225429 afuser.go:249: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,status,last_date,insert_date,update_date, from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:51:53.237397 afuser.go:253: Error  ===> Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from af_user where 1=1  and user_name='idKey'' at line 1
+2019/10/14 17:55:01.061789 main.go:705: config file == config-ci.json
+2019/10/14 17:55:01.074019 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:55:03.777251 main.go:650: ==============>singup==========>
+2019/10/14 17:55:03.777596 main.go:662: 2019-10-14 17:55:03.777309 +0800 CST m=+2.716815008 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:03.777659 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:03.791314 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:55:16.152568 main.go:650: ==============>singup==========>
+2019/10/14 17:55:16.152794 main.go:662: 2019-10-14 17:55:16.152735 +0800 CST m=+15.092259089 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:16.152817 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:16.164442 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:55:17.360764 main.go:650: ==============>singup==========>
+2019/10/14 17:55:17.360946 main.go:662: 2019-10-14 17:55:17.360903 +0800 CST m=+16.300429207 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:17.360975 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:17.365058 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:55:39.648912 main.go:650: ==============>singup==========>
+2019/10/14 17:55:39.649275 main.go:662: 2019-10-14 17:55:39.649023 +0800 CST m=+38.588581560 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:39.649302 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:39.661481 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:55:40.720536 main.go:650: ==============>singup==========>
+2019/10/14 17:55:40.720746 main.go:662: 2019-10-14 17:55:40.720645 +0800 CST m=+39.660205163 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:40.720770 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:40.724311 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:55:42.792635 main.go:650: ==============>singup==========>
+2019/10/14 17:55:42.792840 main.go:662: 2019-10-14 17:55:42.792745 +0800 CST m=+41.732307893 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:55:42.792872 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:55:42.805120 afuser.go:284: Error  ===> sql: Scan error on column index 1, name "user_id": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 17:56:04.864485 main.go:650: ==============>singup==========>
+2019/10/14 17:56:04.864708 main.go:662: 2019-10-14 17:56:04.864612 +0800 CST m=+63.804207694 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:04.864736 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:08.592470 main.go:650: ==============>singup==========>
+2019/10/14 17:56:08.593033 main.go:662: 2019-10-14 17:56:08.592606 +0800 CST m=+67.532206652 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:08.593163 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:11.504579 main.go:650: ==============>singup==========>
+2019/10/14 17:56:11.504795 main.go:662: 2019-10-14 17:56:11.504708 +0800 CST m=+70.444313614 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:11.504824 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:12.112564 main.go:650: ==============>singup==========>
+2019/10/14 17:56:12.112771 main.go:662: 2019-10-14 17:56:12.112733 +0800 CST m=+71.052338965 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:12.112798 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:12.936897 main.go:650: ==============>singup==========>
+2019/10/14 17:56:12.937123 main.go:662: 2019-10-14 17:56:12.937041 +0800 CST m=+71.876648275 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:12.937155 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:21.088879 main.go:650: ==============>singup==========>
+2019/10/14 17:56:21.089166 main.go:662: 2019-10-14 17:56:21.089019 +0800 CST m=+80.028637826 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:21.089191 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:22.216617 main.go:650: ==============>singup==========>
+2019/10/14 17:56:22.216833 main.go:662: 2019-10-14 17:56:22.216788 +0800 CST m=+81.156408489 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:22.216860 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:56:37.496487 main.go:650: ==============>singup==========>
+2019/10/14 17:56:37.496704 main.go:662: 2019-10-14 17:56:37.496637 +0800 CST m=+96.436280335 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:56:37.496760 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:58:01.354882 main.go:705: config file == config-ci.json
+2019/10/14 17:58:01.365732 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:58:03.964834 main.go:650: ==============>singup==========>
+2019/10/14 17:58:03.965086 main.go:662: 2019-10-14 17:58:03.96488 +0800 CST m=+2.611314953 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:58:03.965127 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:58:05.740359 main.go:650: ==============>singup==========>
+2019/10/14 17:58:05.740627 main.go:662: 2019-10-14 17:58:05.740486 +0800 CST m=+4.386932643 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:58:05.740688 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:58:06.484325 main.go:650: ==============>singup==========>
+2019/10/14 17:58:06.484662 main.go:662: 2019-10-14 17:58:06.484449 +0800 CST m=+5.130899824 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:58:06.484694 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:58:51.688662 main.go:705: config file == config-ci.json
+2019/10/14 17:58:51.700743 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:58:53.900815 main.go:650: ==============>singup==========>
+2019/10/14 17:58:53.901138 main.go:662: 2019-10-14 17:58:53.90094 +0800 CST m=+2.213561257 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:58:53.901183 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:58:55.140149 main.go:650: ==============>singup==========>
+2019/10/14 17:58:55.140400 main.go:662: 2019-10-14 17:58:55.140272 +0800 CST m=+3.452897110 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:58:55.140453 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:59:39.054261 main.go:705: config file == config-ci.json
+2019/10/14 17:59:39.066235 dbuitl.go:29: Database Connected successful!
+2019/10/14 17:59:43.244353 main.go:650: ==============>singup==========>
+2019/10/14 17:59:43.244596 main.go:662: 2019-10-14 17:59:43.244406 +0800 CST m=+4.191427291 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:59:43.244646 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 17:59:46.235830 main.go:650: ==============>singup==========>
+2019/10/14 17:59:46.236184 main.go:662: 2019-10-14 17:59:46.235961 +0800 CST m=+7.182991558 =====> {idKey 23232323 232323 2222}
+2019/10/14 17:59:46.236250 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:00:58.882466 main.go:705: config file == config-ci.json
+2019/10/14 18:00:58.894848 dbuitl.go:29: Database Connected successful!
+2019/10/14 18:01:01.268158 main.go:650: ==============>singup==========>
+2019/10/14 18:01:01.268490 main.go:662: 2019-10-14 18:01:01.268244 +0800 CST m=+2.387185638 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:01:01.268547 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:01:01.283347 afuser.go:620: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,insert_date)  values(?,?,?,?)
+2019/10/14 18:01:01.287390 afuser.go:642: Insert ===> LastInsertId: 12
+2019/10/14 18:01:01.287478 afuser.go:645: Insert ===> RowsAffected: 1
+2019/10/14 18:01:01.287497 afuser.go:649: Elapsed===> 4.161801ms
+2019/10/14 18:01:04.244021 main.go:650: ==============>singup==========>
+2019/10/14 18:01:04.244375 main.go:662: 2019-10-14 18:01:04.244335 +0800 CST m=+5.363286291 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:01:04.244396 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:01:04.255353 afuser.go:289: Elapsed===> {0xc00010c0c0 1 0 []}
+2019/10/14 18:01:04.255446 afuser.go:291: Elapsed===> 11.034566ms
+2019/10/14 18:01:08.419706 main.go:650: ==============>singup==========>
+2019/10/14 18:01:08.419939 main.go:662: 2019-10-14 18:01:08.41983 +0800 CST m=+9.538794255 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:01:08.420013 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:01:08.432477 afuser.go:289: Elapsed===> {0xc00010c0c0 1 0 []}
+2019/10/14 18:01:08.432560 afuser.go:291: Elapsed===> 12.567039ms
+2019/10/14 18:01:09.139736 main.go:650: ==============>singup==========>
+2019/10/14 18:01:09.140006 main.go:662: 2019-10-14 18:01:09.139888 +0800 CST m=+10.258854294 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:01:09.140059 afuser.go:269: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:01:09.145150 afuser.go:289: Elapsed===> {0xc00010c0c0 1 0 []}
+2019/10/14 18:01:09.145248 afuser.go:291: Elapsed===> 5.191639ms
+2019/10/14 18:07:32.265527 main.go:705: config file == config-ci.json
+2019/10/14 18:07:32.278182 dbuitl.go:29: Database Connected successful!
+2019/10/14 18:07:56.507043 main.go:707: config file == config-ci.json
+2019/10/14 18:07:56.518563 dbuitl.go:29: Database Connected successful!
+2019/10/14 18:08:00.027149 main.go:650: ==============>singup==========>
+2019/10/14 18:08:00.175545 main.go:662: 2019-10-14 18:08:00.17528 +0800 CST m=+3.669839035 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:00.175629 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:00.186564 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:00.186663 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:00.191762 afuser.go:689: Insert ===> LastInsertId: 13
+2019/10/14 18:08:00.191831 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:00.191847 afuser.go:696: Elapsed===> 5.204698ms
+2019/10/14 18:08:02.122381 main.go:650: ==============>singup==========>
+2019/10/14 18:08:02.122614 main.go:662: 2019-10-14 18:08:02.122508 +0800 CST m=+5.617073237 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:02.122729 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:02.126768 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:02.126884 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:02.132532 afuser.go:689: Insert ===> LastInsertId: 14
+2019/10/14 18:08:02.132603 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:02.132616 afuser.go:696: Elapsed===> 5.739808ms
+2019/10/14 18:08:27.058332 main.go:650: ==============>singup==========>
+2019/10/14 18:08:27.058578 main.go:662: 2019-10-14 18:08:27.058462 +0800 CST m=+30.553107464 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:27.058647 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:27.071996 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:27.079351 afuser.go:689: Insert ===> LastInsertId: 15
+2019/10/14 18:08:27.079425 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:27.079439 afuser.go:696: Elapsed===> 7.44578ms
+2019/10/14 18:08:28.338316 main.go:650: ==============>singup==========>
+2019/10/14 18:08:28.338592 main.go:662: 2019-10-14 18:08:28.338483 +0800 CST m=+31.833134429 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:28.338644 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:28.341680 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:28.341776 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:28.345768 afuser.go:689: Insert ===> LastInsertId: 16
+2019/10/14 18:08:28.345809 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:28.345821 afuser.go:696: Elapsed===> 4.050866ms
+2019/10/14 18:08:45.666437 main.go:650: ==============>singup==========>
+2019/10/14 18:08:45.666630 main.go:662: 2019-10-14 18:08:45.666545 +0800 CST m=+49.161249384 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:45.666675 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:45.679189 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:45.679267 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:45.685209 afuser.go:689: Insert ===> LastInsertId: 17
+2019/10/14 18:08:45.685242 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:45.685280 afuser.go:696: Elapsed===> 6.029664ms
+2019/10/14 18:08:46.298584 main.go:650: ==============>singup==========>
+2019/10/14 18:08:46.298804 main.go:662: 2019-10-14 18:08:46.298699 +0800 CST m=+49.793405218 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:46.298847 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:46.304532 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:46.304683 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:46.309543 afuser.go:689: Insert ===> LastInsertId: 18
+2019/10/14 18:08:46.309609 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:46.309628 afuser.go:696: Elapsed===> 4.951869ms
+2019/10/14 18:08:46.826209 main.go:650: ==============>singup==========>
+2019/10/14 18:08:46.826439 main.go:662: 2019-10-14 18:08:46.826303 +0800 CST m=+50.321010902 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:08:46.826469 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:08:46.828734 afuser.go:304: Error  ===> sql: Scan error on column index 12, name "last_date": converting driver.Value type <nil> ("<nil>") to a int64: invalid syntax
+2019/10/14 18:08:46.828783 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:08:46.835039 afuser.go:689: Insert ===> LastInsertId: 19
+2019/10/14 18:08:46.835088 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:08:46.835101 afuser.go:696: Elapsed===> 6.320871ms
+2019/10/14 18:10:23.088452 main.go:707: config file == config-ci.json
+2019/10/14 18:10:23.099543 dbuitl.go:29: Database Connected successful!
+2019/10/14 18:10:43.522523 main.go:650: ==============>singup==========>
+2019/10/14 18:10:43.522778 main.go:662: 2019-10-14 18:10:43.522582 +0800 CST m=+20.435522538 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:10:43.522814 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:10:43.531756 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:10:43.537369 afuser.go:689: Insert ===> LastInsertId: 20
+2019/10/14 18:10:43.537492 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:10:43.537520 afuser.go:696: Elapsed===> 5.785173ms
+2019/10/14 18:10:44.642073 main.go:650: ==============>singup==========>
+2019/10/14 18:10:44.642342 main.go:662: 2019-10-14 18:10:44.642224 +0800 CST m=+21.555167451 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:10:44.642416 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:10:44.647062 afuser.go:304: Error  ===> sql: expected 13 destination arguments in Scan, not 14
+2019/10/14 18:10:44.647188 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:10:44.652998 afuser.go:689: Insert ===> LastInsertId: 21
+2019/10/14 18:10:44.653086 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:10:44.653106 afuser.go:696: Elapsed===> 5.925915ms
+2019/10/14 18:10:45.890029 main.go:650: ==============>singup==========>
+2019/10/14 18:10:45.890297 main.go:662: 2019-10-14 18:10:45.89015 +0800 CST m=+22.803097396 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:10:45.890399 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:10:45.900553 afuser.go:304: Error  ===> sql: expected 13 destination arguments in Scan, not 14
+2019/10/14 18:10:45.900624 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:10:45.905779 afuser.go:689: Insert ===> LastInsertId: 22
+2019/10/14 18:10:45.905861 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:10:45.905912 afuser.go:696: Elapsed===> 5.290328ms
+2019/10/14 18:11:18.194507 main.go:707: config file == config-ci.json
+2019/10/14 18:11:18.210489 dbuitl.go:29: Database Connected successful!
+2019/10/14 18:11:23.066305 main.go:650: ==============>singup==========>
+2019/10/14 18:11:23.066564 main.go:662: 2019-10-14 18:11:23.066374 +0800 CST m=+4.873081420 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:23.066599 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:23.076784 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:23.076868 afuser.go:310: Elapsed===> 10.263645ms
+2019/10/14 18:11:25.138110 main.go:650: ==============>singup==========>
+2019/10/14 18:11:25.138334 main.go:662: 2019-10-14 18:11:25.13824 +0800 CST m=+6.944954167 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:25.138367 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:25.150630 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:25.150708 afuser.go:310: Elapsed===> 12.351339ms
+2019/10/14 18:11:51.641894 main.go:650: ==============>singup==========>
+2019/10/14 18:11:51.642028 main.go:662: 2019-10-14 18:11:51.64198 +0800 CST m=+33.448778012 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:51.642060 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:51.656319 afuser.go:667: Insert ===> Insert into  af_user(user_id,user_name,user_pwd,problem,answer,insert_date)  values(?,?,?,?,?,?)
+2019/10/14 18:11:51.664744 afuser.go:689: Insert ===> LastInsertId: 23
+2019/10/14 18:11:51.664820 afuser.go:692: Insert ===> RowsAffected: 1
+2019/10/14 18:11:51.664836 afuser.go:696: Elapsed===> 8.524479ms
+2019/10/14 18:11:52.697650 main.go:650: ==============>singup==========>
+2019/10/14 18:11:52.697843 main.go:662: 2019-10-14 18:11:52.697761 +0800 CST m=+34.504562965 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:52.697882 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:52.701646 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:52.701754 afuser.go:310: Elapsed===> 3.873511ms
+2019/10/14 18:11:53.561849 main.go:650: ==============>singup==========>
+2019/10/14 18:11:53.562088 main.go:662: 2019-10-14 18:11:53.561993 +0800 CST m=+35.368797881 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:53.562149 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:53.567574 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:53.567659 afuser.go:310: Elapsed===> 5.509417ms
+2019/10/14 18:11:54.338062 main.go:650: ==============>singup==========>
+2019/10/14 18:11:54.338403 main.go:662: 2019-10-14 18:11:54.338282 +0800 CST m=+36.145089364 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:54.338493 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:54.350868 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:54.350927 afuser.go:310: Elapsed===> 12.441168ms
+2019/10/14 18:11:54.921540 main.go:650: ==============>singup==========>
+2019/10/14 18:11:54.921810 main.go:662: 2019-10-14 18:11:54.921724 +0800 CST m=+36.728533111 =====> {idKey 23232323 232323 2222}
+2019/10/14 18:11:54.921912 afuser.go:289: Select ===> Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_count,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1  and user_name='idKey' 
+2019/10/14 18:11:54.924601 afuser.go:308: Elapsed===> {0xc0000e80c0 1 0 []}
+2019/10/14 18:11:54.924661 afuser.go:310: Elapsed===> 2.752635ms

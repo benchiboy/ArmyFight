@@ -149,3 +149,29 @@ type Player struct {
 	Candy      int
 	Icecream   int
 }
+
+/* 用户注册*/
+type SignUp struct {
+	UserName string `json:"username"`
+	Pwd      string `json:"pwd"`
+	Problem  string `json:"problem"`
+	Answer   string `json:"answer"`
+}
+
+type SignUpResp struct {
+	ResultCode string `json:"retcode"`
+	ResultMsg  string `json:"retmsg"`
+}
+
+/*找回密码*/
+type ResetPwd struct {
+	UserName string `json:"username"`
+	Problem  string `json:"problem"`
+	Answer   string `json:"answer"`
+	NewPwd   string `json:"newpwd"`
+}
+
+type ResetPwdResp struct {
+	ResultCode string `json:"retcode"`
+	ResultMsg  string `json:"retmsg"`
+}
