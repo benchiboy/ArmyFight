@@ -34,15 +34,15 @@ var (
 	openConns   int
 )
 
-//var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
-var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
+var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
+
+//var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
 /*
 	玩家签到处理
 	1:从数据库查询用户的信息 同步到内存中
-
 */
 func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>SignIn============>")
@@ -56,13 +56,30 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 		cmdMsgResp.Message = "用户已经在线"
 		return cmdMsgResp
 	}
+	if playerType == HUMAN_TYPE {
+		user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+		var search afuser.Search
+		search.UserName = cmdMsg.NickName
+		if e, err := user.Get(search); err != nil {
+			cmdMsgResp.Success = false
+			cmdMsgResp.Message = "登录账号或密码错误"
+			return cmdMsgResp
+		} else {
+			fmt.Println(e.UserPwd, cmdMsg.Message)
+			if e.UserPwd != cmdMsg.Message {
+				cmdMsgResp.Success = false
+				cmdMsgResp.Message = "登录账号或密码错误"
+				return cmdMsgResp
+			}
+		}
+	}
 	GId2ConnMap.Store(cmdMsg.NickName, Player{CurrConn: c, SignInTime: time.Now(),
 		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE, PlayerType: playerType})
 	GConn2IdMap.Store(c, cmdMsg.NickName)
 
 	cmdMsgResp.FromId = cmdMsg.FromId
 	cmdMsgResp.ToId = cmdMsg.FromId
-	cmdMsgResp.Message = "Sign In Success!"
+	cmdMsgResp.Message = "登录成功"
 	return cmdMsgResp
 }
 
@@ -77,6 +94,7 @@ func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	proxyMsg(c, cmdMsg)
 
 	setCard(cmdMsg.FromId, cmdMsg.SCore, cmdMsg.Message)
+
 	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Message = cmdMsg.Message
 	cmdMsgResp.Role = getRole(cmdMsg.FromId)
@@ -169,8 +187,8 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	cmdMsgResp.AnotherMsg = sCard
 	cmdMsgResp.ToId = cmdMsg.ToId
 	cmdMsgResp.FromId = cmdMsg.FromId
+	fmt.Println("======>", mCard, sCard)
 
-	fmt.Println("=====>", cmdMsg.FromId, cmdMsg.ToId)
 	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
 		cmdMsgResp.Role = "S"
 	} else {
@@ -178,14 +196,8 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	}
 	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
 
-	if getPlayerType(cmdMsg.FromId) == ROBOT_TYPE {
-		cmdMsgResp.Role = "M"
-	} else {
-		cmdMsgResp.Role = "S"
-	}
+	cmdMsgResp.Role = "M"
 
-	cmdMsgResp.Message = sCard
-	cmdMsgResp.AnotherMsg = mCard
 	return cmdMsgResp
 }
 
@@ -213,38 +225,47 @@ func sendVoice(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 }
 
 /*
-	得到用户列表
+	功能：得到人类对手类别
 */
 func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>getUsers============>")
-	uList := make([]User, 0)
+	uList := make([]Player, 0)
 	var cmdMsgResp CommandMsgResp
 	GId2ConnMap.Range(func(k, v interface{}) bool {
+
 		p, _ := v.(Player)
-		var u User
-		log.Println(p.NickName)
-		if cmdMsg.NickName != p.NickName {
-			u.UserId = fmt.Sprintf("%s", k)
-			u.NickName = p.NickName
-			u.Avatar = p.Avatar
-			u.Candy = p.Candy
-			u.PlayerType = p.PlayerType
-			u.Decoration = p.Decoration
-			u.Icecream = p.Icecream
-			u.LoginTime = p.SignInTime
-			u.Memo = p.Memo
-			u.Status = p.Status
-			uList = append(uList, u)
+		fmt.Println(p)
+		if cmdMsg.NickName != p.NickName && p.PlayerType == HUMAN_TYPE {
+			uList = append(uList, p)
 		}
 		return true
 	})
-	if userBuf, err := json.Marshal(uList); err != nil {
-		log.Println(err)
-	} else {
-		cmdMsgResp.Message = string(userBuf)
-		cmdMsgResp.Success = true
-	}
+	userBuf, _ := json.Marshal(uList)
+	cmdMsgResp.Message = string(userBuf)
+	cmdMsgResp.Success = true
 	cmdMsgResp.Type = GET_USERS_RESP
+	return cmdMsgResp
+}
+
+/*
+	功能：得到机器对手列表
+*/
+func getRobots(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("=========>getRobots============>")
+	uList := make([]Player, 0)
+	var cmdMsgResp CommandMsgResp
+	GId2ConnMap.Range(func(k, v interface{}) bool {
+		p, _ := v.(Player)
+		if cmdMsg.NickName != p.NickName && p.PlayerType == ROBOT_TYPE {
+			log.Println("====>", p)
+			uList = append(uList, p)
+		}
+		return true
+	})
+	userBuf, _ := json.Marshal(uList)
+	cmdMsgResp.Message = string(userBuf)
+	cmdMsgResp.Success = true
+	cmdMsgResp.Type = GET_ROBOTS_RESP
 	return cmdMsgResp
 }
 
@@ -615,6 +636,8 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 			cmdMsgResp = sendVoice(c, cmdMsg)
 		case GET_USERS:
 			cmdMsgResp = getUsers(c, cmdMsg)
+		case GET_ROBOTS:
+			cmdMsgResp = getRobots(c, cmdMsg)
 		case REQ_PLAY:
 			cmdMsgResp = reqPlay(c, cmdMsg)
 		case REQ_PLAY_YES:
@@ -643,46 +666,61 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+	HTTP 应答公共方法
+*/
+func writeResp(response interface{}, w http.ResponseWriter, r *http.Request) {
+	json, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Println(string(json))
+	fmt.Fprintf(w, string(json))
+}
+
+/*
    用户注册处理函数
 */
 
 func singup(w http.ResponseWriter, r *http.Request) {
 	log.Println("==============>singup==========>")
 	t1 := time.Now()
-	var signup SignUp
+	var sign SignUp
+
 	var singupResp SignUpResp
 	reqBuf, err := ioutil.ReadAll(r.Body)
-	if err = json.Unmarshal(reqBuf, &signup); err != nil {
+	if err = json.Unmarshal(reqBuf, &sign); err != nil {
 		log.Println("解析JSON错误", err)
-		buf, _ := json.Marshal(singupResp)
-		w.Write(buf)
+		singupResp.ResultCode = "1000"
+		singupResp.ResultMsg = "解析JSON错误"
+		writeResp(singupResp, w, r)
 		return
 	}
 	defer r.Body.Close()
-	log.Println(t1, "=====>", signup)
+	log.Println(t1, "=====>", sign)
 	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
 	var search afuser.Search
-	search.UserName = signup.UserName
+	search.UserName = sign.UserName
 	if _, err = user.Get(search); err == nil {
 		singupResp.ResultCode = "4000"
 		singupResp.ResultMsg = "用户已经存在"
-		buf, _ := json.Marshal(singupResp)
-		w.Write(buf)
+		writeResp(singupResp, w, r)
 		return
 	}
 	var e afuser.AfUser
-	e.UserName = signup.UserName
-	e.UserPwd = signup.Pwd
-	e.Problem = signup.Problem
-	e.Answer = signup.Answer
+	e.UserName = sign.UserName
+	e.UserPwd = sign.Pwd
+	e.Problem = sign.Problem
+	e.Answer = sign.Answer
+	e.UserImage = sign.HeadImage
 	e.InsertDate = time.Now().Unix()
 	e.UserId = time.Now().Unix()
 	user.InsertEntity(e, nil)
 
 	singupResp.ResultCode = "0000"
 	singupResp.ResultMsg = "注册成功！"
-	buf, _ := json.Marshal(singupResp)
-	w.Write(buf)
+	writeResp(singupResp, w, r)
+
 	return
 }
 
@@ -691,7 +729,82 @@ func singup(w http.ResponseWriter, r *http.Request) {
 */
 
 func resetpwd(w http.ResponseWriter, r *http.Request) {
-	log.Println("==================>")
+	t1 := time.Now()
+	var resetpwd ResetPwd
+	var resetpwdResp ResetPwdResp
+	reqBuf, err := ioutil.ReadAll(r.Body)
+	if err = json.Unmarshal(reqBuf, &resetpwd); err != nil {
+		log.Println("解析JSON错误", err)
+		resetpwdResp.ResultCode = "1000"
+		resetpwdResp.ResultMsg = "解析JSON错误"
+		writeResp(resetpwdResp, w, r)
+		return
+	}
+	defer r.Body.Close()
+	log.Println(t1, "=====>", resetpwd)
+	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+	var search afuser.Search
+	search.UserName = resetpwd.UserName
+	u, err := user.Get(search)
+	if err != nil {
+		resetpwdResp.ResultCode = "2000"
+		resetpwdResp.ResultMsg = "用户不存在"
+		writeResp(resetpwdResp, w, r)
+		return
+	}
+	if u.Problem != resetpwd.Problem && u.Answer != resetpwd.Answer {
+		resetpwdResp.ResultCode = "2001"
+		resetpwdResp.ResultMsg = "回答问题答案错误"
+		writeResp(resetpwdResp, w, r)
+		return
+	}
+	onlineMap := map[string]interface{}{
+		"user_pwd": resetpwd.NewPwd}
+	err = user.UpdateMap(fmt.Sprintf("%d", u.AutoId), onlineMap, nil)
+
+	resetpwdResp.ResultCode = "0000"
+	resetpwdResp.ResultMsg = "修改密码成功"
+	writeResp(resetpwdResp, w, r)
+
+	return
+}
+
+/*
+   查询用户信息
+*/
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	t1 := time.Now()
+	var getuser GetUser
+	var getresp GetUserResp
+	reqBuf, err := ioutil.ReadAll(r.Body)
+	if err = json.Unmarshal(reqBuf, &getuser); err != nil {
+		log.Println("解析JSON错误", err)
+		getresp.ResultCode = "1000"
+		getresp.ResultMsg = "解析JSON错误"
+		writeResp(getresp, w, r)
+		return
+	}
+	defer r.Body.Close()
+	log.Println(t1, "=====>", getuser)
+	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+	var search afuser.Search
+	search.UserName = getuser.UserName
+	u, err := user.Get(search)
+	if err != nil {
+		getresp.ResultCode = "2000"
+		getresp.ResultMsg = "用户不存在"
+		writeResp(getresp, w, r)
+		return
+	}
+	getresp.Problem = u.Problem
+	getresp.Answer = u.Answer
+	getresp.HeadImage = u.UserImage
+	getresp.ResultCode = "0000"
+	getresp.ResultMsg = "查询用户成功"
+	writeResp(getresp, w, r)
+
+	return
 }
 
 func init() {
@@ -723,8 +836,7 @@ func main() {
 	dbutil.InitDB(dbUrl, idleConns, openConns)
 
 	http.HandleFunc("/echo", gameHandle)
-	http.HandleFunc("/army/api/checkuser", singup)
-	http.HandleFunc("/army/api/getproblem", singup)
+	http.HandleFunc("/army/api/getuser", getUser)
 	http.HandleFunc("/army/api/signup", singup)
 	http.HandleFunc("/army/api/resetpwd", resetpwd)
 
