@@ -77,13 +77,14 @@ const (
 )
 
 //签到类型
-const ROBOT_TYPE = 1
-const HUMAN_TYPE = 2
+const (
+	ROBOT_TYPE = 1
+	HUMAN_TYPE = 2
 
-const STATUS_ONLIE_READY = 1
-const STATUS_ONLIE_DONG = 1
-const STATUS_ONLIN_IDLE = 2
-const STATUS_OFFLINE = 3
+	STATUS_ONLIN_IDLE = 1
+	STATUS_ONLIE_DONG = 2
+	STATUS_OFFLINE    = 3
+)
 
 const SYSTEM_NAME = "MyBoss"
 
@@ -145,9 +146,7 @@ type Player struct {
 	CurrCard   string    `json:"currcard"`
 	ToNickName string    `json:"tonickname"`
 	Status     int       `json:"status"`
-	LoginTime  time.Time `json:"logintime"`
 	Avatar     string    `json:"avatar"`
-	Memo       string    `json:"memo"`
 	Role       string    `json:"role"`
 	Decoration int       `json:"decoration"`
 }

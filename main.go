@@ -34,9 +34,9 @@ var (
 	openConns   int
 )
 
-var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
+//var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
 
-//var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
+var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -56,30 +56,34 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 		cmdMsgResp.Message = "用户已经在线"
 		return cmdMsgResp
 	}
-	if playerType == HUMAN_TYPE {
-		user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
-		var search afuser.Search
-		search.UserName = cmdMsg.NickName
-		if e, err := user.Get(search); err != nil {
+	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+	var search afuser.Search
+	search.UserName = cmdMsg.NickName
+	e, err := user.Get(search)
+	if err != nil {
+		cmdMsgResp.Success = false
+		cmdMsgResp.Message = "登录账号或密码错误"
+		return cmdMsgResp
+	} else {
+		fmt.Println(e.UserPwd, cmdMsg.Message)
+		if e.UserPwd != cmdMsg.Message {
 			cmdMsgResp.Success = false
 			cmdMsgResp.Message = "登录账号或密码错误"
 			return cmdMsgResp
-		} else {
-			fmt.Println(e.UserPwd, cmdMsg.Message)
-			if e.UserPwd != cmdMsg.Message {
-				cmdMsgResp.Success = false
-				cmdMsgResp.Message = "登录账号或密码错误"
-				return cmdMsgResp
-			}
 		}
 	}
-	GId2ConnMap.Store(cmdMsg.NickName, Player{CurrConn: c, SignInTime: time.Now(),
-		NickName: cmdMsg.NickName, Status: STATUS_ONLIN_IDLE, PlayerType: playerType})
-	GConn2IdMap.Store(c, cmdMsg.NickName)
+	GId2ConnMap.Store(cmdMsg.NickName, Player{
+		CurrConn:   c,
+		SignInTime: time.Now(),
+		NickName:   cmdMsg.NickName,
+		Status:     STATUS_ONLIN_IDLE,
+		PlayerType: playerType,
+		Avatar:     e.UserImage})
 
+	GConn2IdMap.Store(c, cmdMsg.NickName)
 	cmdMsgResp.FromId = cmdMsg.FromId
 	cmdMsgResp.ToId = cmdMsg.FromId
-	cmdMsgResp.Message = "登录成功"
+	cmdMsgResp.Message = e.UserImage
 	return cmdMsgResp
 }
 
@@ -196,7 +200,13 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	}
 	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
 
-	cmdMsgResp.Role = "M"
+	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
+		cmdMsgResp.Role = "M"
+	} else {
+		cmdMsgResp.Message = sCard
+		cmdMsgResp.AnotherMsg = mCard
+		cmdMsgResp.Role = "S"
+	}
 
 	return cmdMsgResp
 }
@@ -232,9 +242,7 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	uList := make([]Player, 0)
 	var cmdMsgResp CommandMsgResp
 	GId2ConnMap.Range(func(k, v interface{}) bool {
-
 		p, _ := v.(Player)
-		fmt.Println(p)
 		if cmdMsg.NickName != p.NickName && p.PlayerType == HUMAN_TYPE {
 			uList = append(uList, p)
 		}
@@ -257,7 +265,6 @@ func getRobots(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	GId2ConnMap.Range(func(k, v interface{}) bool {
 		p, _ := v.(Player)
 		if cmdMsg.NickName != p.NickName && p.PlayerType == ROBOT_TYPE {
-			log.Println("====>", p)
 			uList = append(uList, p)
 		}
 		return true
@@ -317,12 +324,13 @@ func proxyMsgResp(toId string, cmdMsgResp CommandMsgResp) {
 }
 
 /*
-	改变用户通知
+	功能：玩家切换了对手，需要把通知原对手
 */
 func changeUser(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	log.Println("=========>changeUser============>", cmdMsg.FromId, cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
 
+	setStatus(cmdMsg.ToId, STATUS_ONLIN_IDLE)
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp.Type = CHANGE_USER_RESP
 	return cmdMsgResp
@@ -440,7 +448,6 @@ func getCard(playerId string) (int, string) {
 	另一玩家答应请求
 */
 func setStatus(playerId string, status int) {
-	//log.Println("=========>setStatus============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
@@ -450,9 +457,7 @@ func setStatus(playerId string, status int) {
 		log.Println("类型断言错误")
 	}
 	player.Status = status
-
 	GId2ConnMap.Store(playerId, player)
-	//log.Println("=========>setStatus============>", playerId)
 }
 
 /*
@@ -485,17 +490,14 @@ func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	proxyMsg(c, cmdMsg)
 
 	//初始玩家双方的状态
-	setStatus(cmdMsg.FromId, STATUS_ONLIE_READY)
-	setStatus(cmdMsg.ToId, STATUS_ONLIE_READY)
+	setStatus(cmdMsg.FromId, STATUS_ONLIE_DONG)
+	setStatus(cmdMsg.ToId, STATUS_ONLIE_DONG)
 
 	setToNickName(cmdMsg.FromId, cmdMsg.ToId)
 	setToNickName(cmdMsg.ToId, cmdMsg.FromId)
 
 	setRole(cmdMsg.FromId, "S")
 	setRole(cmdMsg.ToId, "M")
-
-	fmt.Println(cmdMsg.FromId+"角色：", getRole(cmdMsg.FromId))
-	fmt.Println(cmdMsg.ToId+"角色：", getRole(cmdMsg.ToId))
 
 	cmdMsgResp.Type = REQ_PLAY_YES_RESP
 	return cmdMsgResp
@@ -580,10 +582,10 @@ func disconnClear(c *websocket.Conn) {
 		log.Println("类型断言错误")
 		return
 	}
-
 	//删除SN对应的缓存
 	GId2ConnMap.Delete(playId)
 	GConn2IdMap.Delete(c)
+
 	log.Println("处理断开之后的清理")
 	//如果此用户有关联用户，需要提醒对方
 	if player.ToNickName != "" {
@@ -592,6 +594,7 @@ func disconnClear(c *websocket.Conn) {
 		cmdMsg.FromId = playId
 		cmdMsg.Message = "下线通知"
 		cmdMsg.ToId = player.ToNickName
+		setStatus(cmdMsg.ToId, STATUS_ONLIN_IDLE)
 		proxyMsg(nil, cmdMsg)
 	}
 
