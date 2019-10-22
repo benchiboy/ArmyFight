@@ -13,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	"ArmFight/afplay"
+	"ArmFight/afplaydetail"
 	"ArmFight/afuser"
 	"ArmFight/dbutil"
 
@@ -34,11 +36,10 @@ var (
 	openConns   int
 )
 
-//var addr = flag.String("addr", "172.17.0.3:9080", "http service address")
-
-var addr = flag.String("addr", "127.0.0.1:9080", "http service address")
-
-var upgrader = websocket.Upgrader{} // use default options
+var (
+	serverAddr = flag.String("addr", "127.0.0.1:9080", "http service address")
+	upgrader   = websocket.Upgrader{} // use default options
+)
 
 /*
 	玩家签到处理
@@ -49,16 +50,16 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Type = SIGN_IN_RESP
 	cmdMsgResp.Success = true
-	_, ok := GId2ConnMap.Load(cmdMsg.NickName)
+	_, ok := GId2ConnMap.Load(cmdMsg.FromId)
 	if ok {
-		log.Println(cmdMsg.NickName + "用户已经在线")
+		log.Println(cmdMsg.FromId + "用户已经在线")
 		cmdMsgResp.Success = false
 		cmdMsgResp.Message = "用户已经在线"
 		return cmdMsgResp
 	}
 	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
 	var search afuser.Search
-	search.UserName = cmdMsg.NickName
+	search.UserName = cmdMsg.FromId
 	e, err := user.Get(search)
 	if err != nil {
 		cmdMsgResp.Success = false
@@ -72,16 +73,18 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 			return cmdMsgResp
 		}
 	}
-	GId2ConnMap.Store(cmdMsg.NickName, Player{
+	GId2ConnMap.Store(cmdMsg.FromId, Player{
 		CurrConn:   c,
 		SignInTime: time.Now(),
-		NickName:   cmdMsg.NickName,
 		Status:     STATUS_ONLIN_IDLE,
 		PlayerType: playerType,
-		Avatar:     e.UserImage})
+		Avatar:     e.UserImage,
+		NickName:   cmdMsg.FromId,
+		Coins:      e.CoinCnt,
+		Medals:     e.MedalCnt})
 
-	GConn2IdMap.Store(c, cmdMsg.NickName)
-	cmdMsgResp.FromId = cmdMsg.FromId
+	GConn2IdMap.Store(c, cmdMsg.FromId)
+	cmdMsgResp.FromId = SYSTEM_NAME
 	cmdMsgResp.ToId = cmdMsg.FromId
 	cmdMsgResp.Message = e.UserImage
 	return cmdMsgResp
@@ -92,18 +95,25 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 */
 
 func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>PlayCard============>")
-
+	log.Println("==========PlayCard======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	cmdMsg.Role = getRole(cmdMsg.FromId)
 	proxyMsg(c, cmdMsg)
 
-	setCard(cmdMsg.FromId, cmdMsg.SCore, cmdMsg.Message)
+	//插入明细表
+	playdt := afplaydetail.New(dbutil.GetDB(), afuser.DEBUG)
+	var e afplaydetail.AfPlayDetail
+	e.BatchNo = cmdMsg.BatchNo
+	e.PlayNo = cmdMsg.PlayNo
+	e.PlayCard = cmdMsg.Message
+	e.Player = cmdMsg.FromId
+	e.InsertDate = time.Now().Unix()
+	playdt.InsertEntity(e, nil)
 
+	setCard(cmdMsg.FromId, cmdMsg.SCore, cmdMsg.Message)
 	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Message = cmdMsg.Message
 	cmdMsgResp.Role = getRole(cmdMsg.FromId)
 	cmdMsgResp.Type = PLAY_CARD_RESP
-
 	return cmdMsgResp
 }
 
@@ -112,15 +122,164 @@ func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 */
 
 func reqPlayCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>reqPlayCard============>")
-
+	log.Println("==========ReqPlayCard======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	proxyMsg(c, cmdMsg)
-
 	var cmdMsgResp CommandMsgResp
+
 	cmdMsgResp.Message = cmdMsg.Message
 	cmdMsgResp.Type = REQ_PLAY_CARD_RESP
-
 	return cmdMsgResp
+}
+
+/*
+	功能：更新决战的结果
+*/
+
+func updateOver(batchNo string, endType string, winner string) {
+	log.Println("==========UpdateResult======>")
+	rrr := afplay.New(dbutil.GetDB(), afuser.DEBUG)
+	playMap := map[string]interface{}{FIELD_ENDTYPE: endType, FIELD_WINNER: winner, FIELD_UPDATE_TIME: time.Now()}
+	if err := rrr.UpdateMap(batchNo, playMap, nil); err != nil {
+		log.Println("更新对战批次失败", err)
+	}
+}
+
+/*
+	功能：更新决战的结果
+*/
+func updateResult(batchNo string, playNo int64, fromId string, toId string, winner string, isEnd string) {
+	log.Println("==========UpdateResult======>", batchNo, playNo, fromId, toId, winner)
+	//更新明细表
+	r := afplaydetail.New(dbutil.GetDB(), afuser.DEBUG)
+	tr, err := r.DB.Begin()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if winner == WINNER_BOTH {
+		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_EQUAL, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_EQUAL, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+
+		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
+		if err = rr.UpdateMap(fromId, userMap, tr); err != nil {
+			log.Println("更新用户失败", err)
+			tr.Rollback()
+		}
+
+		userMap = map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
+		if err = rr.UpdateMap(toId, userMap, tr); err != nil {
+			log.Println("更新用户失败", err)
+			tr.Rollback()
+		}
+	}
+	if winner == fromId {
+		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_WINNER, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_LOSER, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+
+		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
+		if err = rr.UpdateMap(fromId, userMap, tr); err != nil {
+			log.Println("更新用户失败", err)
+			tr.Rollback()
+		}
+	}
+	if winner == toId {
+		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_WINNER, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_LOSER, FIELD_UPDATE_TIME: time.Now()}
+		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+
+		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
+		if err = rr.UpdateMap(toId, userMap, tr); err != nil {
+			log.Println("更新用户失败", err)
+			tr.Rollback()
+		}
+
+	}
+	//更新批次信息
+	if isEnd == "E" {
+		rrr := afplay.New(dbutil.GetDB(), afuser.DEBUG)
+		playMap := map[string]interface{}{FIELD_STATUS: "e", FIELD_ENDTYPE: END_NORMAL, FIELD_WINNER: winner, FIELD_UPDATE_TIME: time.Now()}
+		if err = rrr.UpdateMap(batchNo, playMap, tr); err != nil {
+			log.Println("更新对战批次失败", err)
+			tr.Rollback()
+		}
+	}
+	tr.Commit()
+}
+
+func compareCard(fromPlayer string, toPlayer string, fromScore int, toScore int) (string, string) {
+	//出工兵和地雷的情况
+	if fromScore == CARD_ENGINEER && toScore == CARD_MINE {
+		return GAME_DOING, fromPlayer
+	}
+	if toScore == CARD_ENGINEER && fromScore == CARD_MINE {
+		return GAME_DOING, toPlayer
+	}
+	//出炸弹和地雷的情况
+	if toScore == CARD_MINE && fromScore == CARD_BOMB {
+		return GAME_DOING, WINNER_BOTH
+	}
+	if fromScore == CARD_MINE && toScore == CARD_BOMB {
+		return GAME_DOING, WINNER_BOTH
+	}
+	if fromScore > toScore {
+		//出现炸弹，地址 和人员相碰的情况
+		if fromScore == CARD_BOMB || fromScore == CARD_MINE {
+			if toScore == CARD_TIP {
+				return GAME_DOING, toPlayer
+			} else {
+				return GAME_DOING, WINNER_BOTH
+			}
+		} else {
+			if toScore == CARD_TIP {
+				return GAME_END, fromPlayer
+			} else {
+				return GAME_DOING, fromPlayer
+			}
+		}
+	} else if fromScore == toScore {
+		return GAME_DOING, WINNER_BOTH
+	} else {
+		//出现炸弹，地雷 和人员相碰的情况
+		if toScore == CARD_BOMB || toScore == CARD_MINE {
+			if fromScore == CARD_TIP {
+				return GAME_END, fromPlayer
+			} else {
+				return GAME_DOING, WINNER_BOTH
+			}
+		} else {
+			if fromScore == CARD_TIP {
+				return GAME_END, toPlayer
+			} else {
+				return GAME_DOING, toPlayer
+			}
+		}
+	}
 }
 
 /*
@@ -128,85 +287,19 @@ func reqPlayCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 */
 
 func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>queryResult============>")
-	var mScore, sScore int
-	var sCard, mCard string
-	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
-		mScore, mCard = getCard(cmdMsg.FromId)
-		sScore, sCard = getCard(cmdMsg.ToId)
-	} else {
-		sScore, sCard = getCard(cmdMsg.FromId)
-		mScore, mCard = getCard(cmdMsg.ToId)
-	}
-	var cmdMsgResp CommandMsgResp
-	if sScore > mScore {
-		//出现炸弹，地址 和人员相碰的情况
-		if sScore == 101 || sScore == 100 {
-			if mScore == 0 {
-				cmdMsgResp.Winner = "M"
-			} else {
-				cmdMsgResp.Winner = "B"
-			}
-		} else {
-			cmdMsgResp.Winner = "S"
-			if mScore == 0 {
-				cmdMsgResp.Status = "E"
-			}
-		}
-	} else if sScore == mScore {
-		cmdMsgResp.Winner = "B"
-	} else {
-		//出现炸弹，地雷 和人员相碰的情况
-		if mScore == 101 || mScore == 100 {
-			if sScore == 0 {
-				cmdMsgResp.Winner = "S"
-			} else {
-				cmdMsgResp.Winner = "B"
-			}
-
-		} else {
-			cmdMsgResp.Winner = "M"
-			if sScore == 0 {
-				cmdMsgResp.Status = "E"
-			}
-		}
-	}
-	//出工兵和地理的情况
-	if sScore == 1 && mScore == 100 {
-		cmdMsgResp.Winner = "S"
-	}
-	if mScore == 1 && sScore == 100 {
-		cmdMsgResp.Winner = "M"
-	}
-	//出炸弹和地雷的情况
-	if sScore == 100 && mScore == 101 {
-		cmdMsgResp.Winner = "B"
-	}
-	if mScore == 100 && sScore == 101 {
-		cmdMsgResp.Winner = "B"
-	}
-
-	cmdMsgResp.Type = QUERY_RESULT_RESP
-	cmdMsgResp.Message = mCard
-	cmdMsgResp.AnotherMsg = sCard
-	cmdMsgResp.ToId = cmdMsg.ToId
-	cmdMsgResp.FromId = cmdMsg.FromId
-	fmt.Println("======>", mCard, sCard)
-
-	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
-		cmdMsgResp.Role = "S"
-	} else {
-		cmdMsgResp.Role = "M"
-	}
-	proxyMsgResp(cmdMsg.ToId, cmdMsgResp)
-
-	if getPlayerType(cmdMsg.ToId) == ROBOT_TYPE {
-		cmdMsgResp.Role = "M"
-	} else {
-		cmdMsgResp.Message = sCard
-		cmdMsgResp.AnotherMsg = mCard
-		cmdMsgResp.Role = "S"
-	}
+	log.Println("==========queryResult======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
+	fromScore, fromCard := getCard(cmdMsg.FromId)
+	toScore, toCard := getCard(cmdMsg.ToId)
+	endTag, winner := compareCard(cmdMsg.FromId,
+		cmdMsg.ToId, fromScore, toScore)
+	cmdMsg.Message = fromCard
+	cmdMsg.Winner = winner
+	cmdMsg.Status = endTag
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp := CommandMsgResp{Type: QUERY_RESULT_RESP, ToId: cmdMsg.ToId,
+		FromId: cmdMsg.FromId, Winner: winner, Status: endTag, Message: toCard}
+	log.Println(cmdMsg)
+	updateResult(cmdMsg.BatchNo, cmdMsg.PlayNo, cmdMsg.FromId, cmdMsg.ToId, winner, endTag)
 
 	return cmdMsgResp
 }
@@ -215,7 +308,7 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	玩家发送消息处理
 */
 func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>SendMsg============>")
+	log.Println("==========SendMsg======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 
 	var cmdMsgResp CommandMsgResp
 	proxyMsg(c, cmdMsg)
@@ -227,7 +320,8 @@ func sendMsg(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	玩家发送语音
 */
 func sendVoice(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>SendVoice============>")
+	log.Println("==========SendVoice======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
+
 	var cmdMsgResp CommandMsgResp
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp.Type = SEND_VOICE_RESP
@@ -238,12 +332,12 @@ func sendVoice(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	功能：得到人类对手类别
 */
 func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>getUsers============>")
+	log.Println("==========GetUsers======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	uList := make([]Player, 0)
 	var cmdMsgResp CommandMsgResp
 	GId2ConnMap.Range(func(k, v interface{}) bool {
 		p, _ := v.(Player)
-		if cmdMsg.NickName != p.NickName && p.PlayerType == HUMAN_TYPE {
+		if cmdMsg.FromId != p.NickName && p.PlayerType == HUMAN_TYPE {
 			uList = append(uList, p)
 		}
 		return true
@@ -259,12 +353,12 @@ func getUsers(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	功能：得到机器对手列表
 */
 func getRobots(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>getRobots============>")
+	log.Println("==========GetRobots======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	uList := make([]Player, 0)
 	var cmdMsgResp CommandMsgResp
 	GId2ConnMap.Range(func(k, v interface{}) bool {
 		p, _ := v.(Player)
-		if cmdMsg.NickName != p.NickName && p.PlayerType == ROBOT_TYPE {
+		if cmdMsg.FromId != p.NickName && p.PlayerType == ROBOT_TYPE {
 			uList = append(uList, p)
 		}
 		return true
@@ -277,10 +371,10 @@ func getRobots(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 }
 
 /*
-	消息转发
+	功能：转发命令到toId节点
 */
+
 func proxyMsg(c *websocket.Conn, cmdMsg CommandMsg) {
-	log.Println("=========>proxyMsg============>")
 	log.Println(cmdMsg.FromId, cmdMsg.ToId)
 	playerObj, ok := GId2ConnMap.Load(cmdMsg.ToId)
 	if !ok {
@@ -302,34 +396,12 @@ func proxyMsg(c *websocket.Conn, cmdMsg CommandMsg) {
 }
 
 /*
-	消息转发
-*/
-func proxyMsgResp(toId string, cmdMsgResp CommandMsgResp) {
-	log.Println("=========>proxyMsgResp============>")
-	playerObj, ok := GId2ConnMap.Load(toId)
-	if !ok {
-		log.Println("缓存信息没有获取到")
-	}
-	toPlayer, ret := playerObj.(Player)
-	if !ret {
-		log.Println("类型断言错误")
-	}
-	if reqBuf, err := json.Marshal(cmdMsgResp); err != nil {
-		log.Println(err)
-	} else {
-		if err := toPlayer.CurrConn.WriteMessage(websocket.TextMessage, []byte(string(reqBuf))); err != nil {
-			log.Println("发送出错")
-		}
-	}
-}
-
-/*
-	功能：玩家切换了对手，需要把通知原对手
+	功能：玩家切换了对手，需要通知原对手
+		 并把原对手的在线状态修改为空闲
 */
 func changeUser(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>changeUser============>", cmdMsg.FromId, cmdMsg.ToId)
+	log.Println("==========ChangeUser======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
-
 	setStatus(cmdMsg.ToId, STATUS_ONLIN_IDLE)
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp.Type = CHANGE_USER_RESP
@@ -340,7 +412,7 @@ func changeUser(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	请求玩家
 */
 func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>reqPlay============>")
+	log.Println("==========ReqPlay======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp.Type = REQ_PLAY_RESP
@@ -351,88 +423,103 @@ func reqPlay(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	开始游戏
 */
 func startGame(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>startGame============>")
-	var cmdMsgResp CommandMsgResp
+	log.Println("==========StartGame======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	proxyMsg(c, cmdMsg)
 
+	play := afplay.New(dbutil.GetDB(), afuser.DEBUG)
+
+	var e afplay.AfPlay
+	e.BatchNo = cmdMsg.BatchNo
+	e.FromPlayer = cmdMsg.FromId
+	e.ToPlayer = cmdMsg.ToId
+	play.InsertEntity(e, nil)
+
+	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Type = START_GAME_RESP
 	return cmdMsgResp
 }
 
 /*
-	另一玩家答应请求
+	功能说明：修改玩家的角色
+	入参：M：主角色 S：从角色
 */
 func setRole(playerId string, role string) {
-	log.Println("=========>setRole============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
-		log.Println(playerId, "缓存信息没有获取到")
+		log.Println(playerId, "缓存信息没有获取到", playerId)
+		return
 	}
 	player, ret := playerObj.(Player)
 	if !ret {
 		log.Println("类型断言错误")
+		return
 	}
 	player.Role = role
 	GId2ConnMap.Store(playerId, player)
-	//log.Println("=========>setRole============>", playerId)
 }
 
 /*
-	另一玩家答应请求
+	功能说明：得到玩家的角色
+	返回：M：主角色 S：从角色
 */
 func getRole(playerId string) string {
-	log.Println("=========>setRole============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
-		log.Println(playerId, "缓存信息没有获取到")
+		log.Println(playerId, "缓存信息没有获取到", playerId)
+		return ""
 	}
 	player, ret := playerObj.(Player)
 	if !ret {
 		log.Println("类型断言错误")
+		return ""
 	}
 	return player.Role
 }
 
 /*
-	另一玩家答应请求
+	功能说明：获取玩家的类型
+	返回：1：机器人 2：
 */
 func getPlayerType(playerId string) int {
-	log.Println("=========>setRole============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
+		return 0
 	}
 	player, ret := playerObj.(Player)
 	if !ret {
 		log.Println("类型断言错误")
+		return 0
 	}
 	return player.PlayerType
 }
 
 /*
-	存储玩家的出牌
+	功能说明：保存玩家的出牌
+	参数：玩家ID，牌的分值,牌的ID
 */
 func setCard(playerId string, score int, card string) {
-	log.Println("=========>setCard============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
-		log.Println(playerId, "缓存信息没有获取到")
+		log.Println(playerId, "setCard缓存信息没有获取到")
+		return
 	}
 	player, ret := playerObj.(Player)
 	if !ret {
-		log.Println("类型断言错误")
+		log.Println("setCard类型断言错误")
+		return
 	}
 	player.CurrSCore = score
 	player.CurrCard = card
 	GId2ConnMap.Store(playerId, player)
-	log.Println("=========>setCard============>", playerId)
 }
 
 /*
-	得到
+	功能说明：得到玩家的出牌
+	入参：玩家ID
+	出参：分值、牌ID
 */
 func getCard(playerId string) (int, string) {
-	log.Println("=========>getCard============>")
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
@@ -445,16 +532,18 @@ func getCard(playerId string) (int, string) {
 }
 
 /*
-	另一玩家答应请求
+	修改玩家状态
 */
 func setStatus(playerId string, status int) {
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
+		return
 	}
 	player, ret := playerObj.(Player)
 	if !ret {
 		log.Println("类型断言错误")
+		return
 	}
 	player.Status = status
 	GId2ConnMap.Store(playerId, player)
@@ -463,8 +552,7 @@ func setStatus(playerId string, status int) {
 /*
 	存储另一玩家的信息
 */
-func setToNickName(playerId string, toNickName string) {
-	//log.Println("=========>setStatus============>")
+func setNickname(playerId string, nikeName string) {
 	playerObj, ok := GId2ConnMap.Load(playerId)
 	if !ok {
 		log.Println(playerId, "缓存信息没有获取到")
@@ -473,31 +561,28 @@ func setToNickName(playerId string, toNickName string) {
 	if !ret {
 		log.Println("类型断言错误")
 	}
-	player.ToNickName = toNickName
-
+	player.ToNickName = nikeName
 	GId2ConnMap.Store(playerId, player)
-	//log.Println("=========>setStatus============>", playerId)
 }
 
 /*
 	另一玩家答应请求
 */
 func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>reqPlayYes============>")
+	log.Println("==========ReqPlayYes======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
 	cmdMsg.Message = "对方同意了"
 
 	proxyMsg(c, cmdMsg)
-
 	//初始玩家双方的状态
 	setStatus(cmdMsg.FromId, STATUS_ONLIE_DONG)
 	setStatus(cmdMsg.ToId, STATUS_ONLIE_DONG)
 
-	setToNickName(cmdMsg.FromId, cmdMsg.ToId)
-	setToNickName(cmdMsg.ToId, cmdMsg.FromId)
+	setNickname(cmdMsg.FromId, cmdMsg.ToId)
+	setNickname(cmdMsg.ToId, cmdMsg.FromId)
 
-	setRole(cmdMsg.FromId, "S")
-	setRole(cmdMsg.ToId, "M")
+	setRole(cmdMsg.FromId, ROLE_SLAVE)
+	setRole(cmdMsg.ToId, ROLE_MASTER)
 
 	cmdMsgResp.Type = REQ_PLAY_YES_RESP
 	return cmdMsgResp
@@ -507,11 +592,10 @@ func reqPlayYes(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	另一玩家拒绝请求
 */
 func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>reqPlayNo============>")
+	log.Println("==========ReqPlayNo======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
 	cmdMsg.Message = "对方拒绝了"
 	proxyMsg(c, cmdMsg)
-
 	cmdMsgResp.Type = REQ_PLAY_NO_RESP
 	return cmdMsgResp
 }
@@ -520,8 +604,7 @@ func reqPlayNo(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	登录成功后初始化数据
 */
 func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>initData============>")
-	var cmdMsgResp CommandMsgResp
+	log.Println("==========InitData======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	cardMap := map[string]CardInfo{
 		"gongbing":  CardInfo{Count: 3, SCore: 1, Name: "工兵"},
 		"paizhang":  CardInfo{Count: 2, SCore: 2, Name: "排长"},
@@ -535,9 +618,10 @@ func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 		"junqi":     CardInfo{Count: 1, SCore: 0, Name: "军旗"},
 		"dilei":     CardInfo{Count: 3, SCore: 100, Name: "地雷"},
 		"zhadan":    CardInfo{Count: 2, SCore: 101, Name: "炸弹"}}
-	initJson, _ := json.Marshal(cardMap)
-	mString := string(initJson)
-	cmdMsgResp.Message = mString
+	cards, _ := json.Marshal(cardMap)
+	cardStr := string(cards)
+	var cmdMsgResp CommandMsgResp
+	cmdMsgResp.Message = cardStr
 	cmdMsgResp.FromId = SYSTEM_NAME
 	cmdMsgResp.ToId = cmdMsg.FromId
 	cmdMsgResp.Type = REQ_INIT_DATA_RESP
@@ -548,10 +632,22 @@ func initData(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	发起认输
 */
 func giveUp(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
-	log.Println("=========>giveUp============>")
+	log.Println("==========GiveUp======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
 	var cmdMsgResp CommandMsgResp
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp.Message = "放弃认输"
+	cmdMsgResp.Type = REQ_GIVEUP_RESP
+	return cmdMsgResp
+}
+
+/*
+	发起求和
+*/
+func draw(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
+	log.Println("==========Draw======>", cmdMsg.FromId, "===>", cmdMsg.ToId)
+	var cmdMsgResp CommandMsgResp
+	proxyMsg(c, cmdMsg)
+	cmdMsgResp.Message = "请求平局"
 	cmdMsgResp.Type = REQ_GIVEUP_RESP
 	return cmdMsgResp
 }
@@ -582,6 +678,7 @@ func disconnClear(c *websocket.Conn) {
 		log.Println("类型断言错误")
 		return
 	}
+
 	//删除SN对应的缓存
 	GId2ConnMap.Delete(playId)
 	GConn2IdMap.Delete(c)
@@ -601,13 +698,12 @@ func disconnClear(c *websocket.Conn) {
 }
 
 /*
-   主流程处理
+   功能：处理手机端的请求指令
 */
 
 func gameHandle(w http.ResponseWriter, r *http.Request) {
-	log.Println("==================>")
+	log.Println("==========GiveUp======>")
 	c, err := upgrader.Upgrade(w, r, nil)
-
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
@@ -618,11 +714,13 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
+			log.Println("读消息出现错误:ReadMessage Error", err)
 			disconnClear(c)
 			break
 		}
+		log.Printf("服务端收到消息: %d %+v \n", mt, string(message))
 		if err = json.Unmarshal(message, &cmdMsg); err != nil {
-			log.Println("Unmarshal:", err)
+			log.Println("解析消息出现错误:", err)
 		}
 		switch cmdMsg.Type {
 		case PLAY_CARD:
@@ -658,11 +756,12 @@ func gameHandle(w http.ResponseWriter, r *http.Request) {
 		case REQ_PLAY_CARD:
 			cmdMsgResp = reqPlayCard(c, cmdMsg)
 		}
+		cmdMsgResp.BatchNo = cmdMsg.BatchNo
 		msg, err := json.Marshal(cmdMsgResp)
 		err = c.WriteMessage(mt, msg)
-		log.Println("发送的消息：", mt, cmdMsgResp)
+		log.Printf("服务端应答消息: %d %+v \n", mt, cmdMsgResp)
 		if err != nil {
-			log.Println("write:", err)
+			log.Println("发送应答消息出错:", err)
 			break
 		}
 	}
@@ -686,10 +785,8 @@ func writeResp(response interface{}, w http.ResponseWriter, r *http.Request) {
 */
 
 func singup(w http.ResponseWriter, r *http.Request) {
-	log.Println("==============>singup==========>")
-	t1 := time.Now()
+	log.Println("==============>singup============>")
 	var sign SignUp
-
 	var singupResp SignUpResp
 	reqBuf, err := ioutil.ReadAll(r.Body)
 	if err = json.Unmarshal(reqBuf, &sign); err != nil {
@@ -700,7 +797,6 @@ func singup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	log.Println(t1, "=====>", sign)
 	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
 	var search afuser.Search
 	search.UserName = sign.UserName
@@ -732,7 +828,7 @@ func singup(w http.ResponseWriter, r *http.Request) {
 */
 
 func resetpwd(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
+	log.Println("==============>resetpwd============>")
 	var resetpwd ResetPwd
 	var resetpwdResp ResetPwdResp
 	reqBuf, err := ioutil.ReadAll(r.Body)
@@ -744,7 +840,6 @@ func resetpwd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	log.Println(t1, "=====>", resetpwd)
 	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
 	var search afuser.Search
 	search.UserName = resetpwd.UserName
@@ -777,7 +872,7 @@ func resetpwd(w http.ResponseWriter, r *http.Request) {
 */
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
+	log.Println("==============>getUser============>")
 	var getuser GetUser
 	var getresp GetUserResp
 	reqBuf, err := ioutil.ReadAll(r.Body)
@@ -789,7 +884,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	log.Println(t1, "=====>", getuser)
 	user := afuser.New(dbutil.GetDB(), afuser.DEBUG)
 	var search afuser.Search
 	search.UserName = getuser.UserName
@@ -806,7 +900,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	getresp.ResultCode = "0000"
 	getresp.ResultMsg = "查询用户成功"
 	writeResp(getresp, w, r)
-
 	return
 }
 
@@ -825,16 +918,17 @@ func init() {
 	if err != nil {
 		log.Fatalln("读配置文件出错", err)
 	}
-
 	//填充配置文件
 	c.Get("/config/LISTEN_PORT", &listenPort)
 	c.Get("/config/DB_URL", &dbUrl)
 	c.Get("/config/OPEN_CONNS", &openConns)
 	c.Get("/config/IDLE_CONNS", &idleConns)
+	c.Get("/config/LISTEN_IP", serverAddr)
 }
 
 func main() {
 	fmt.Println("====>ArmyFight Starting....===>")
+	fmt.Println("====>Listen Addr===>", *serverAddr)
 
 	dbutil.InitDB(dbUrl, idleConns, openConns)
 
@@ -843,5 +937,5 @@ func main() {
 	http.HandleFunc("/army/api/signup", singup)
 	http.HandleFunc("/army/api/resetpwd", resetpwd)
 
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(*serverAddr, nil))
 }

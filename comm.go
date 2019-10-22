@@ -59,6 +59,10 @@ const (
 	REQ_GIVEUP      = 1007
 	REQ_GIVEUP_RESP = 2007
 
+	//请平局
+	REQ_DRAW      = 1085
+	REQ_DRAW_RESP = 2085
+
 	//初始数据
 	REQ_INIT_DATA      = 1030
 	REQ_INIT_DATA_RESP = 2030
@@ -76,6 +80,13 @@ const (
 	OFFLINE_MSG_RESP = 2050
 )
 
+const (
+	CARD_BOMB     = 101
+	CARD_MINE     = 100
+	CARD_TIP      = 0
+	CARD_ENGINEER = 1
+)
+
 //签到类型
 const (
 	ROBOT_TYPE = 1
@@ -84,6 +95,33 @@ const (
 	STATUS_ONLIN_IDLE = 1
 	STATUS_ONLIE_DONG = 2
 	STATUS_OFFLINE    = 3
+
+	ROLE_MASTER = "M"
+	ROLE_SLAVE  = "S"
+
+	WINNER_MASTER = "M"
+	WINNER_SLAVE  = "S"
+	WINNER_BOTH   = "B"
+	GAME_END      = "E"
+	GAME_DOING    = "D"
+
+	RESULT_WINNER = "w"
+	RESULT_LOSER  = "l"
+	RESULT_EQUAL  = "e"
+
+	END_NORMAL = "n"
+	END_GIVEUP = "g"
+	END_DRAW   = "d"
+
+	FIELD_UPDATE_TIME = "update_date"
+	FIELD_RESULT      = "result"
+	FIELD_STATUS      = "status"
+	FIELD_WINNER      = "winner"
+	FIELD_ENDTYPE     = "end_type"
+	FIELD_PLAYER      = "player"
+	FIELD_USERNAME    = "user_name"
+	FIELD_COIN_CNT    = "coin_cnt"
+	FIELD_MEDAL_CNT   = "medal_cnt"
 )
 
 const SYSTEM_NAME = "MyBoss"
@@ -98,42 +136,52 @@ type CardInfo struct {
 }
 
 /*
-	发送消息命令
+	对战结果的消息
 */
-type CommandMsg struct {
-	Type     int    `json:"type"`
-	FromId   string `json:"fromid"`
-	ToId     string `json:"toid"`
-	NickName string `json:"nickname"`
-	Message  string `json:"message"`
-	Role     string `json:"role"`
-	SCore    int    `json:"score"`
-}
-
-type CommandMsgResp struct {
-	Type       int    `json:"type"`
-	Success    bool   `json:"success"`
-	Role       string `json:"role"`
-	FromId     string `json:"fromid"`
-	ToId       string `json:"toid"`
-	Winner     string `json:"winner"`
-	Status     string `json:"status"`
-	Message    string `json:"message"`
-	AnotherMsg string `json:"anothermsg"`
+type PlayResult struct {
+	FromIdCard string `json:"fromid_card"`
+	ToIdCard   string `json:"toid_card"`
 }
 
 /*
-UserId     string    `json:"userid"`
-	NickName   string    `json:"nickname"`
-	Status     int       `json:"status"`
-	PlayerType int       `json:"playertype"`
-	Avatar     string    `json:"avatar"`
-	Memo       string    `json:"memo"`
-	LoginTime  time.Time `json:"logintime"`
-	Decoration int       `json:"decoration"`
-	Candy      int       `json:"candy"`
-	Icecream   int       `json:"icecrea"`
+	对战结果的消息
 */
+type SigninInfo struct {
+	UserImage int `json:"fromid_card"`
+	CoinCnt   int `json:"coin_cnt"`
+	MedalCnt  int `json:"medal_cnt"`
+}
+
+/*
+	发送消息命令
+*/
+type CommandMsg struct {
+	Type    int    `json:"type"`
+	FromId  string `json:"fromid"`
+	ToType  int    `json:"totype"`
+	ToId    string `json:"toid"` //1: 点对点 2:是点对群
+	PlayNo  int64  `json:"playno"`
+	BatchNo string `json:"batchno"`
+	Message string `json:"message,omitempty"`
+	Role    string `json:"role,omitempty"`
+	SCore   int    `json:"score,omitempty"`
+	Winner  string `json:"winner,omitempty"`
+	Status  string `json:"status,omitempty"`
+}
+
+type CommandMsgResp struct {
+	Type    int    `json:"type"`
+	BatchNo string `json:"batchno,omitempty"`
+	PlayNo  int64  `json:"playno"`
+	Success bool   `json:"success"`
+	FromId  string `json:"fromid,omitempty"`
+	ToId    string `json:"toid,omitempty"`
+	Role    string `json:"role,omitempty"`
+	Winner  string `json:"winner,omitempty"`
+	Status  string `json:"status,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
 /*
 
  */
@@ -141,14 +189,15 @@ type Player struct {
 	CurrConn   *websocket.Conn
 	SignInTime time.Time `json:"logintime"`
 	NickName   string    `json:"nickname"`
+	ToNickName string    `json:"tonickname"`
 	CurrSCore  int       `json:"currscore"`
 	PlayerType int       `json:"playertype"`
 	CurrCard   string    `json:"currcard"`
-	ToNickName string    `json:"tonickname"`
 	Status     int       `json:"status"`
 	Avatar     string    `json:"avatar"`
 	Role       string    `json:"role"`
-	Decoration int       `json:"decoration"`
+	Coins      int64     `json:"coins"`
+	Medals     int64     `json:"medals"`
 }
 
 /* 用户注册*/

@@ -1,4 +1,4 @@
-package afuser
+package afplaydetail
 
 import (
 	"database/sql"
@@ -23,55 +23,41 @@ const (
 
 type Search struct {
 	AutoId     int64  `json:"auto_id"`
-	UserId     int64  `json:"user_id"`
-	UserName   string `json:"user_name"`
-	UserPwd    string `json:"user_pwd"`
-	UserImage  string `json:"user_image"`
+	BatchNo    string `json:"batch_no"`
+	PlayNo     int64  `json:"play_no"`
+	Player     string `json:"player"`
+	PlayCard   string `json:"play_card"`
 	CoinCnt    int64  `json:"coin_cnt"`
-	MedalCnt   int64  `json:"medal_cnt"`
-	PwderrCnt  int64  `json:"pwderr_cnt"`
-	MoneyAmt   int64  `json:"money_amt"`
-	Status     int64  `json:"status"`
-	Problem    string `json:"problem"`
-	Answer     string `json:"answer"`
-	LastDate   int64  `json:"last_date"`
+	Result     string `json:"result"`
 	InsertDate int64  `json:"insert_date"`
 	UpdateDate int64  `json:"update_date"`
-	Version    int64  `json:"version"`
 	PageNo     int    `json:"page_no"`
 	PageSize   int    `json:"page_size"`
 	ExtraWhere string `json:"extra_where"`
 	SortFld    string `json:"sort_fld"`
 }
 
-type AfUserList struct {
-	DB      *sql.DB
-	Level   int
-	Total   int      `json:"total"`
-	AfUsers []AfUser `json:"AfUser"`
+type AfPlayDetailList struct {
+	DB            *sql.DB
+	Level         int
+	Total         int            `json:"total"`
+	AfPlayDetails []AfPlayDetail `json:"AfPlayDetail"`
 }
 
-type AfUser struct {
+type AfPlayDetail struct {
 	AutoId     int64  `json:"auto_id"`
-	UserId     int64  `json:"user_id"`
-	UserName   string `json:"user_name"`
-	UserPwd    string `json:"user_pwd"`
-	UserImage  string `json:"user_image"`
+	BatchNo    string `json:"batch_no"`
+	PlayNo     int64  `json:"play_no"`
+	Player     string `json:"player"`
+	PlayCard   string `json:"play_card"`
 	CoinCnt    int64  `json:"coin_cnt"`
-	MedalCnt   int64  `json:"medal_cnt"`
-	PwderrCnt  int64  `json:"pwderr_cnt"`
-	MoneyAmt   int64  `json:"money_amt"`
-	Status     int64  `json:"status"`
-	Problem    string `json:"problem"`
-	Answer     string `json:"answer"`
-	LastDate   int64  `json:"last_date"`
+	Result     string `json:"result"`
 	InsertDate int64  `json:"insert_date"`
 	UpdateDate int64  `json:"update_date"`
-	Version    int64  `json:"version"`
 }
 
 type Form struct {
-	Form AfUser `json:"AfUser"`
+	Form AfPlayDetail `json:"AfPlayDetail"`
 }
 
 /*
@@ -80,12 +66,12 @@ type Form struct {
 	出参：实例对象
 */
 
-func New(db *sql.DB, level int) *AfUserList {
+func New(db *sql.DB, level int) *AfPlayDetailList {
 	if db == nil {
 		log.Println(SQL_SELECT, "Database is nil")
 		return nil
 	}
-	return &AfUserList{DB: db, Total: 0, AfUsers: make([]AfUser, 0), Level: level}
+	return &AfPlayDetailList{DB: db, Total: 0, AfPlayDetails: make([]AfPlayDetail, 0), Level: level}
 }
 
 /*
@@ -94,7 +80,7 @@ func New(db *sql.DB, level int) *AfUserList {
 	出参：实例对象
 */
 
-func NewUrl(url string, level int) *AfUserList {
+func NewUrl(url string, level int) *AfPlayDetailList {
 	var err error
 	db, err := sql.Open("mysql", url)
 	if err != nil {
@@ -105,7 +91,7 @@ func NewUrl(url string, level int) *AfUserList {
 		log.Println(SQL_SELECT, "Ping database error:", err)
 		return nil
 	}
-	return &AfUserList{DB: db, Total: 0, AfUsers: make([]AfUser, 0), Level: level}
+	return &AfPlayDetailList{DB: db, Total: 0, AfPlayDetails: make([]AfPlayDetail, 0), Level: level}
 }
 
 /*
@@ -114,7 +100,7 @@ func NewUrl(url string, level int) *AfUserList {
 	出参：参数1：返回符合条件的总条件, 参数2：如果错误返回错误对象
 */
 
-func (r *AfUserList) GetTotal(s Search) (int, error) {
+func (r *AfPlayDetailList) GetTotal(s Search) (int, error) {
 	var where string
 	l := time.Now()
 
@@ -122,52 +108,28 @@ func (r *AfUserList) GetTotal(s Search) (int, error) {
 		where += " and auto_id=" + fmt.Sprintf("%d", s.AutoId)
 	}
 
-	if s.UserId != 0 {
-		where += " and user_id=" + fmt.Sprintf("%d", s.UserId)
+	if s.BatchNo != "" {
+		where += " and batch_no='" + s.BatchNo + "'"
 	}
 
-	if s.UserName != "" {
-		where += " and user_name='" + s.UserName + "'"
+	if s.PlayNo != 0 {
+		where += " and play_no=" + fmt.Sprintf("%d", s.PlayNo)
 	}
 
-	if s.UserPwd != "" {
-		where += " and user_pwd='" + s.UserPwd + "'"
+	if s.Player != "" {
+		where += " and player='" + s.Player + "'"
 	}
 
-	if s.UserImage != "" {
-		where += " and user_image='" + s.UserImage + "'"
+	if s.PlayCard != "" {
+		where += " and play_card='" + s.PlayCard + "'"
 	}
 
 	if s.CoinCnt != 0 {
 		where += " and coin_cnt=" + fmt.Sprintf("%d", s.CoinCnt)
 	}
 
-	if s.MedalCnt != 0 {
-		where += " and medal_cnt=" + fmt.Sprintf("%d", s.MedalCnt)
-	}
-
-	if s.PwderrCnt != 0 {
-		where += " and pwderr_cnt=" + fmt.Sprintf("%d", s.PwderrCnt)
-	}
-
-	if s.MoneyAmt != 0 {
-		where += " and money_amt=" + fmt.Sprintf("%d", s.MoneyAmt)
-	}
-
-	if s.Status != 0 {
-		where += " and status=" + fmt.Sprintf("%d", s.Status)
-	}
-
-	if s.Problem != "" {
-		where += " and problem='" + s.Problem + "'"
-	}
-
-	if s.Answer != "" {
-		where += " and answer='" + s.Answer + "'"
-	}
-
-	if s.LastDate != 0 {
-		where += " and last_date=" + fmt.Sprintf("%d", s.LastDate)
+	if s.Result != "" {
+		where += " and result='" + s.Result + "'"
 	}
 
 	if s.InsertDate != 0 {
@@ -178,15 +140,11 @@ func (r *AfUserList) GetTotal(s Search) (int, error) {
 		where += " and update_date=" + fmt.Sprintf("%d", s.UpdateDate)
 	}
 
-	if s.Version != 0 {
-		where += " and version=" + fmt.Sprintf("%d", s.Version)
-	}
-
 	if s.ExtraWhere != "" {
 		where += s.ExtraWhere
 	}
 
-	qrySql := fmt.Sprintf("Select count(1) as total from af_user   where 1=1 %s", where)
+	qrySql := fmt.Sprintf("Select count(1) as total from af_play_detail   where 1=1 %s", where)
 	if r.Level == DEBUG {
 		log.Println(SQL_SELECT, qrySql)
 	}
@@ -212,7 +170,7 @@ func (r *AfUserList) GetTotal(s Search) (int, error) {
 	出参：参数1：返回符合条件的对象, 参数2：如果错误返回错误对象
 */
 
-func (r AfUserList) Get(s Search) (*AfUser, error) {
+func (r AfPlayDetailList) Get(s Search) (*AfPlayDetail, error) {
 	var where string
 	l := time.Now()
 
@@ -220,52 +178,28 @@ func (r AfUserList) Get(s Search) (*AfUser, error) {
 		where += " and auto_id=" + fmt.Sprintf("%d", s.AutoId)
 	}
 
-	if s.UserId != 0 {
-		where += " and user_id=" + fmt.Sprintf("%d", s.UserId)
+	if s.BatchNo != "" {
+		where += " and batch_no='" + s.BatchNo + "'"
 	}
 
-	if s.UserName != "" {
-		where += " and user_name='" + s.UserName + "'"
+	if s.PlayNo != 0 {
+		where += " and play_no=" + fmt.Sprintf("%d", s.PlayNo)
 	}
 
-	if s.UserPwd != "" {
-		where += " and user_pwd='" + s.UserPwd + "'"
+	if s.Player != "" {
+		where += " and player='" + s.Player + "'"
 	}
 
-	if s.UserImage != "" {
-		where += " and user_image='" + s.UserImage + "'"
+	if s.PlayCard != "" {
+		where += " and play_card='" + s.PlayCard + "'"
 	}
 
 	if s.CoinCnt != 0 {
 		where += " and coin_cnt=" + fmt.Sprintf("%d", s.CoinCnt)
 	}
 
-	if s.MedalCnt != 0 {
-		where += " and medal_cnt=" + fmt.Sprintf("%d", s.MedalCnt)
-	}
-
-	if s.PwderrCnt != 0 {
-		where += " and pwderr_cnt=" + fmt.Sprintf("%d", s.PwderrCnt)
-	}
-
-	if s.MoneyAmt != 0 {
-		where += " and money_amt=" + fmt.Sprintf("%d", s.MoneyAmt)
-	}
-
-	if s.Status != 0 {
-		where += " and status=" + fmt.Sprintf("%d", s.Status)
-	}
-
-	if s.Problem != "" {
-		where += " and problem='" + s.Problem + "'"
-	}
-
-	if s.Answer != "" {
-		where += " and answer='" + s.Answer + "'"
-	}
-
-	if s.LastDate != 0 {
-		where += " and last_date=" + fmt.Sprintf("%d", s.LastDate)
+	if s.Result != "" {
+		where += " and result='" + s.Result + "'"
 	}
 
 	if s.InsertDate != 0 {
@@ -276,15 +210,11 @@ func (r AfUserList) Get(s Search) (*AfUser, error) {
 		where += " and update_date=" + fmt.Sprintf("%d", s.UpdateDate)
 	}
 
-	if s.Version != 0 {
-		where += " and version=" + fmt.Sprintf("%d", s.Version)
-	}
-
 	if s.ExtraWhere != "" {
 		where += s.ExtraWhere
 	}
 
-	qrySql := fmt.Sprintf("Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_cnt,pwderr_cnt,money_amt,status,problem,answer,version from af_user where 1=1 %s ", where)
+	qrySql := fmt.Sprintf("Select auto_id,batch_no,play_no,player,play_card,coin_cnt,result,insert_date,update_date, from af_play_detail where 1=1 %s ", where)
 	if r.Level == DEBUG {
 		log.Println(SQL_SELECT, qrySql)
 	}
@@ -295,11 +225,11 @@ func (r AfUserList) Get(s Search) (*AfUser, error) {
 	}
 	defer rows.Close()
 
-	var p AfUser
+	var p AfPlayDetail
 	if !rows.Next() {
 		return nil, fmt.Errorf("Not Finded Record")
 	} else {
-		err := rows.Scan(&p.AutoId, &p.UserId, &p.UserName, &p.UserPwd, &p.UserImage, &p.CoinCnt, &p.MedalCnt, &p.PwderrCnt, &p.MoneyAmt, &p.Status, &p.Problem, &p.Answer, &p.Version)
+		err := rows.Scan(&p.AutoId, &p.BatchNo, &p.PlayNo, &p.Player, &p.PlayCard, &p.CoinCnt, &p.Result, &p.InsertDate, &p.UpdateDate)
 		if err != nil {
 			log.Println(SQL_ERROR, err.Error())
 			return nil, err
@@ -318,7 +248,7 @@ func (r AfUserList) Get(s Search) (*AfUser, error) {
 	出参：参数1：返回符合条件的对象列表, 参数2：如果错误返回错误对象
 */
 
-func (r *AfUserList) GetList(s Search) ([]AfUser, error) {
+func (r *AfPlayDetailList) GetList(s Search) ([]AfPlayDetail, error) {
 	var where string
 	l := time.Now()
 
@@ -326,52 +256,28 @@ func (r *AfUserList) GetList(s Search) ([]AfUser, error) {
 		where += " and auto_id=" + fmt.Sprintf("%d", s.AutoId)
 	}
 
-	if s.UserId != 0 {
-		where += " and user_id=" + fmt.Sprintf("%d", s.UserId)
+	if s.BatchNo != "" {
+		where += " and batch_no='" + s.BatchNo + "'"
 	}
 
-	if s.UserName != "" {
-		where += " and user_name='" + s.UserName + "'"
+	if s.PlayNo != 0 {
+		where += " and play_no=" + fmt.Sprintf("%d", s.PlayNo)
 	}
 
-	if s.UserPwd != "" {
-		where += " and user_pwd='" + s.UserPwd + "'"
+	if s.Player != "" {
+		where += " and player='" + s.Player + "'"
 	}
 
-	if s.UserImage != "" {
-		where += " and user_image='" + s.UserImage + "'"
+	if s.PlayCard != "" {
+		where += " and play_card='" + s.PlayCard + "'"
 	}
 
 	if s.CoinCnt != 0 {
 		where += " and coin_cnt=" + fmt.Sprintf("%d", s.CoinCnt)
 	}
 
-	if s.MedalCnt != 0 {
-		where += " and medal_cnt=" + fmt.Sprintf("%d", s.MedalCnt)
-	}
-
-	if s.PwderrCnt != 0 {
-		where += " and pwderr_cnt=" + fmt.Sprintf("%d", s.PwderrCnt)
-	}
-
-	if s.MoneyAmt != 0 {
-		where += " and money_amt=" + fmt.Sprintf("%d", s.MoneyAmt)
-	}
-
-	if s.Status != 0 {
-		where += " and status=" + fmt.Sprintf("%d", s.Status)
-	}
-
-	if s.Problem != "" {
-		where += " and problem='" + s.Problem + "'"
-	}
-
-	if s.Answer != "" {
-		where += " and answer='" + s.Answer + "'"
-	}
-
-	if s.LastDate != 0 {
-		where += " and last_date=" + fmt.Sprintf("%d", s.LastDate)
+	if s.Result != "" {
+		where += " and result='" + s.Result + "'"
 	}
 
 	if s.InsertDate != 0 {
@@ -382,19 +288,15 @@ func (r *AfUserList) GetList(s Search) ([]AfUser, error) {
 		where += " and update_date=" + fmt.Sprintf("%d", s.UpdateDate)
 	}
 
-	if s.Version != 0 {
-		where += " and version=" + fmt.Sprintf("%d", s.Version)
-	}
-
 	if s.ExtraWhere != "" {
 		where += s.ExtraWhere
 	}
 
 	var qrySql string
 	if s.PageSize == 0 && s.PageNo == 0 {
-		qrySql = fmt.Sprintf("Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_cnt,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1 %s", where)
+		qrySql = fmt.Sprintf("Select auto_id,batch_no,play_no,player,play_card,coin_cnt,result,insert_date,update_date, from af_play_detail where 1=1 %s", where)
 	} else {
-		qrySql = fmt.Sprintf("Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_cnt,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1 %s Limit %d offset %d", where, s.PageSize, (s.PageNo-1)*s.PageSize)
+		qrySql = fmt.Sprintf("Select auto_id,batch_no,play_no,player,play_card,coin_cnt,result,insert_date,update_date, from af_play_detail where 1=1 %s Limit %d offset %d", where, s.PageSize, (s.PageNo-1)*s.PageSize)
 	}
 	if r.Level == DEBUG {
 		log.Println(SQL_SELECT, qrySql)
@@ -406,16 +308,16 @@ func (r *AfUserList) GetList(s Search) ([]AfUser, error) {
 	}
 	defer rows.Close()
 
-	var p AfUser
+	var p AfPlayDetail
 	for rows.Next() {
-		rows.Scan(&p.AutoId, &p.UserId, &p.UserName, &p.UserPwd, &p.UserImage, &p.CoinCnt, &p.MedalCnt, &p.PwderrCnt, &p.MoneyAmt, &p.Status, &p.Problem, &p.Answer, &p.LastDate, &p.InsertDate, &p.UpdateDate, &p.Version)
-		r.AfUsers = append(r.AfUsers, p)
+		rows.Scan(&p.AutoId, &p.BatchNo, &p.PlayNo, &p.Player, &p.PlayCard, &p.CoinCnt, &p.Result, &p.InsertDate, &p.UpdateDate)
+		r.AfPlayDetails = append(r.AfPlayDetails, p)
 	}
 	log.Println(SQL_ELAPSED, r)
 	if r.Level == DEBUG {
 		log.Println(SQL_ELAPSED, time.Since(l))
 	}
-	return r.AfUsers, nil
+	return r.AfPlayDetails, nil
 }
 
 /*
@@ -424,7 +326,7 @@ func (r *AfUserList) GetList(s Search) ([]AfUser, error) {
 	出参：参数1：返回符合条件的对象, 参数2：如果错误返回错误对象
 */
 
-func (r *AfUserList) GetExt(s Search) (map[string]string, error) {
+func (r *AfPlayDetailList) GetExt(s Search) (map[string]string, error) {
 	var where string
 	l := time.Now()
 
@@ -432,52 +334,28 @@ func (r *AfUserList) GetExt(s Search) (map[string]string, error) {
 		where += " and auto_id=" + fmt.Sprintf("%d", s.AutoId)
 	}
 
-	if s.UserId != 0 {
-		where += " and user_id=" + fmt.Sprintf("%d", s.UserId)
+	if s.BatchNo != "" {
+		where += " and batch_no='" + s.BatchNo + "'"
 	}
 
-	if s.UserName != "" {
-		where += " and user_name='" + s.UserName + "'"
+	if s.PlayNo != 0 {
+		where += " and play_no=" + fmt.Sprintf("%d", s.PlayNo)
 	}
 
-	if s.UserPwd != "" {
-		where += " and user_pwd='" + s.UserPwd + "'"
+	if s.Player != "" {
+		where += " and player='" + s.Player + "'"
 	}
 
-	if s.UserImage != "" {
-		where += " and user_image='" + s.UserImage + "'"
+	if s.PlayCard != "" {
+		where += " and play_card='" + s.PlayCard + "'"
 	}
 
 	if s.CoinCnt != 0 {
 		where += " and coin_cnt=" + fmt.Sprintf("%d", s.CoinCnt)
 	}
 
-	if s.MedalCnt != 0 {
-		where += " and medal_cnt=" + fmt.Sprintf("%d", s.MedalCnt)
-	}
-
-	if s.PwderrCnt != 0 {
-		where += " and pwderr_cnt=" + fmt.Sprintf("%d", s.PwderrCnt)
-	}
-
-	if s.MoneyAmt != 0 {
-		where += " and money_amt=" + fmt.Sprintf("%d", s.MoneyAmt)
-	}
-
-	if s.Status != 0 {
-		where += " and status=" + fmt.Sprintf("%d", s.Status)
-	}
-
-	if s.Problem != "" {
-		where += " and problem='" + s.Problem + "'"
-	}
-
-	if s.Answer != "" {
-		where += " and answer='" + s.Answer + "'"
-	}
-
-	if s.LastDate != 0 {
-		where += " and last_date=" + fmt.Sprintf("%d", s.LastDate)
+	if s.Result != "" {
+		where += " and result='" + s.Result + "'"
 	}
 
 	if s.InsertDate != 0 {
@@ -488,11 +366,7 @@ func (r *AfUserList) GetExt(s Search) (map[string]string, error) {
 		where += " and update_date=" + fmt.Sprintf("%d", s.UpdateDate)
 	}
 
-	if s.Version != 0 {
-		where += " and version=" + fmt.Sprintf("%d", s.Version)
-	}
-
-	qrySql := fmt.Sprintf("Select auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_cnt,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version from af_user where 1=1 %s ", where)
+	qrySql := fmt.Sprintf("Select auto_id,batch_no,play_no,player,play_card,coin_cnt,result,insert_date,update_date, from af_play_detail where 1=1 %s ", where)
 	if r.Level == DEBUG {
 		log.Println(SQL_SELECT, qrySql)
 	}
@@ -536,13 +410,13 @@ func (r *AfUserList) GetExt(s Search) (map[string]string, error) {
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) Insert(p AfUser) error {
+func (r AfPlayDetailList) Insert(p AfPlayDetail) error {
 	l := time.Now()
-	exeSql := fmt.Sprintf("Insert into  af_user(auto_id,user_id,user_name,user_pwd,user_image,coin_cnt,medal_cnt,pwderr_cnt,money_amt,status,problem,answer,last_date,insert_date,update_date,version)  values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	exeSql := fmt.Sprintf("Insert into  af_play_detail(auto_id,batch_no,play_no,player,play_card,coin_cnt,result,insert_date,update_date,)  values(?,?,?,?,?,?,?,?,?,)")
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
-	_, err := r.DB.Exec(exeSql, p.AutoId, p.UserId, p.UserName, p.UserPwd, p.UserImage, p.CoinCnt, p.MedalCnt, p.PwderrCnt, p.MoneyAmt, p.Status, p.Problem, p.Answer, p.LastDate, p.InsertDate, p.UpdateDate, p.Version)
+	_, err := r.DB.Exec(exeSql, p.AutoId, p.BatchNo, p.PlayNo, p.Player, p.PlayCard, p.CoinCnt, p.Result, p.InsertDate, p.UpdateDate)
 	if err != nil {
 		log.Println(SQL_ERROR, err.Error())
 		return err
@@ -559,7 +433,7 @@ func (r AfUserList) Insert(p AfUser) error {
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) InsertEntity(p AfUser, tr *sql.Tx) error {
+func (r AfPlayDetailList) InsertEntity(p AfPlayDetail, tr *sql.Tx) error {
 	l := time.Now()
 	var colNames, colTags string
 	valSlice := make([]interface{}, 0)
@@ -570,28 +444,28 @@ func (r AfUserList) InsertEntity(p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.AutoId)
 	}
 
-	if p.UserId != 0 {
-		colNames += "user_id,"
+	if p.BatchNo != "" {
+		colNames += "batch_no,"
 		colTags += "?,"
-		valSlice = append(valSlice, p.UserId)
+		valSlice = append(valSlice, p.BatchNo)
 	}
 
-	if p.UserName != "" {
-		colNames += "user_name,"
+	if p.PlayNo != 0 {
+		colNames += "play_no,"
 		colTags += "?,"
-		valSlice = append(valSlice, p.UserName)
+		valSlice = append(valSlice, p.PlayNo)
 	}
 
-	if p.UserPwd != "" {
-		colNames += "user_pwd,"
+	if p.Player != "" {
+		colNames += "player,"
 		colTags += "?,"
-		valSlice = append(valSlice, p.UserPwd)
+		valSlice = append(valSlice, p.Player)
 	}
 
-	if p.UserImage != "" {
-		colNames += "user_image,"
+	if p.PlayCard != "" {
+		colNames += "play_card,"
 		colTags += "?,"
-		valSlice = append(valSlice, p.UserImage)
+		valSlice = append(valSlice, p.PlayCard)
 	}
 
 	if p.CoinCnt != 0 {
@@ -600,46 +474,10 @@ func (r AfUserList) InsertEntity(p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.CoinCnt)
 	}
 
-	if p.MedalCnt != 0 {
-		colNames += "medal_cnt,"
+	if p.Result != "" {
+		colNames += "result,"
 		colTags += "?,"
-		valSlice = append(valSlice, p.MedalCnt)
-	}
-
-	if p.PwderrCnt != 0 {
-		colNames += "pwderr_cnt,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.PwderrCnt)
-	}
-
-	if p.MoneyAmt != 0 {
-		colNames += "money_amt,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.MoneyAmt)
-	}
-
-	if p.Status != 0 {
-		colNames += "status,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.Status)
-	}
-
-	if p.Problem != "" {
-		colNames += "problem,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.Problem)
-	}
-
-	if p.Answer != "" {
-		colNames += "answer,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.Answer)
-	}
-
-	if p.LastDate != 0 {
-		colNames += "last_date,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.LastDate)
+		valSlice = append(valSlice, p.Result)
 	}
 
 	if p.InsertDate != 0 {
@@ -654,15 +492,9 @@ func (r AfUserList) InsertEntity(p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.UpdateDate)
 	}
 
-	if p.Version != 0 {
-		colNames += "version,"
-		colTags += "?,"
-		valSlice = append(valSlice, p.Version)
-	}
-
 	colNames = strings.TrimRight(colNames, ",")
 	colTags = strings.TrimRight(colTags, ",")
-	exeSql := fmt.Sprintf("Insert into  af_user(%s)  values(%s)", colNames, colTags)
+	exeSql := fmt.Sprintf("Insert into  af_play_detail(%s)  values(%s)", colNames, colTags)
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
@@ -704,7 +536,7 @@ func (r AfUserList) InsertEntity(p AfUser, tr *sql.Tx) error {
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) InsertMap(m map[string]interface{}, tr *sql.Tx) error {
+func (r AfPlayDetailList) InsertMap(m map[string]interface{}, tr *sql.Tx) error {
 	l := time.Now()
 	var colNames, colTags string
 	valSlice := make([]interface{}, 0)
@@ -716,7 +548,7 @@ func (r AfUserList) InsertMap(m map[string]interface{}, tr *sql.Tx) error {
 	colNames = strings.TrimRight(colNames, ",")
 	colTags = strings.TrimRight(colTags, ",")
 
-	exeSql := fmt.Sprintf("Insert into  af_user(%s)  values(%s)", colNames, colTags)
+	exeSql := fmt.Sprintf("Insert into  af_play_detail(%s)  values(%s)", colNames, colTags)
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
@@ -759,7 +591,7 @@ func (r AfUserList) InsertMap(m map[string]interface{}, tr *sql.Tx) error {
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
+func (r AfPlayDetailList) UpdataEntity(keyNo string, p AfPlayDetail, tr *sql.Tx) error {
 	l := time.Now()
 	var colNames string
 	valSlice := make([]interface{}, 0)
@@ -769,27 +601,27 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.AutoId)
 	}
 
-	if p.UserId != 0 {
-		colNames += "user_id=?,"
-		valSlice = append(valSlice, p.UserId)
+	if p.BatchNo != "" {
+		colNames += "batch_no=?,"
+
+		valSlice = append(valSlice, p.BatchNo)
 	}
 
-	if p.UserName != "" {
-		colNames += "user_name=?,"
-
-		valSlice = append(valSlice, p.UserName)
+	if p.PlayNo != 0 {
+		colNames += "play_no=?,"
+		valSlice = append(valSlice, p.PlayNo)
 	}
 
-	if p.UserPwd != "" {
-		colNames += "user_pwd=?,"
+	if p.Player != "" {
+		colNames += "player=?,"
 
-		valSlice = append(valSlice, p.UserPwd)
+		valSlice = append(valSlice, p.Player)
 	}
 
-	if p.UserImage != "" {
-		colNames += "user_image=?,"
+	if p.PlayCard != "" {
+		colNames += "play_card=?,"
 
-		valSlice = append(valSlice, p.UserImage)
+		valSlice = append(valSlice, p.PlayCard)
 	}
 
 	if p.CoinCnt != 0 {
@@ -797,41 +629,10 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.CoinCnt)
 	}
 
-	if p.MedalCnt != 0 {
-		colNames += "medal_cnt=?,"
-		valSlice = append(valSlice, p.MedalCnt)
-	}
+	if p.Result != "" {
+		colNames += "result=?,"
 
-	if p.PwderrCnt != 0 {
-		colNames += "pwderr_cnt=?,"
-		valSlice = append(valSlice, p.PwderrCnt)
-	}
-
-	if p.MoneyAmt != 0 {
-		colNames += "money_amt=?,"
-		valSlice = append(valSlice, p.MoneyAmt)
-	}
-
-	if p.Status != 0 {
-		colNames += "status=?,"
-		valSlice = append(valSlice, p.Status)
-	}
-
-	if p.Problem != "" {
-		colNames += "problem=?,"
-
-		valSlice = append(valSlice, p.Problem)
-	}
-
-	if p.Answer != "" {
-		colNames += "answer=?,"
-
-		valSlice = append(valSlice, p.Answer)
-	}
-
-	if p.LastDate != 0 {
-		colNames += "last_date=?,"
-		valSlice = append(valSlice, p.LastDate)
+		valSlice = append(valSlice, p.Result)
 	}
 
 	if p.InsertDate != 0 {
@@ -844,15 +645,10 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 		valSlice = append(valSlice, p.UpdateDate)
 	}
 
-	if p.Version != 0 {
-		colNames += "version=?,"
-		valSlice = append(valSlice, p.Version)
-	}
-
 	colNames = strings.TrimRight(colNames, ",")
 	valSlice = append(valSlice, keyNo)
 
-	exeSql := fmt.Sprintf("update  af_user  set %s  where auto_id=? ", colNames)
+	exeSql := fmt.Sprintf("update  af_play_detail  set %s  where auto_id=? ", colNames)
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
@@ -895,7 +691,7 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) UpdateMap(keyNo string, m map[string]interface{}, tr *sql.Tx) error {
+func (r AfPlayDetailList) UpdateMap(batchNo string, playNo int64, player string, m map[string]interface{}, tr *sql.Tx) error {
 	l := time.Now()
 
 	var colNames string
@@ -904,9 +700,12 @@ func (r AfUserList) UpdateMap(keyNo string, m map[string]interface{}, tr *sql.Tx
 		colNames += k + "=?,"
 		valSlice = append(valSlice, v)
 	}
-	valSlice = append(valSlice, keyNo)
+	valSlice = append(valSlice, batchNo)
+	valSlice = append(valSlice, playNo)
+	valSlice = append(valSlice, player)
+
 	colNames = strings.TrimRight(colNames, ",")
-	updateSql := fmt.Sprintf("Update af_user set %s where user_name=?", colNames)
+	updateSql := fmt.Sprintf("Update af_play_detail set %s where batch_no=? and play_no=? and player=?", colNames)
 	if r.Level == DEBUG {
 		log.Println(SQL_UPDATE, updateSql)
 	}
@@ -947,9 +746,9 @@ func (r AfUserList) UpdateMap(keyNo string, m map[string]interface{}, tr *sql.Tx
 	出参：参数1：如果出错，返回错误对象；成功返回nil
 */
 
-func (r AfUserList) Delete(keyNo string, tr *sql.Tx) error {
+func (r AfPlayDetailList) Delete(keyNo string, tr *sql.Tx) error {
 	l := time.Now()
-	delSql := fmt.Sprintf("Delete from  af_user  where auto_id=?")
+	delSql := fmt.Sprintf("Delete from  af_play_detail  where auto_id=?")
 	if r.Level == DEBUG {
 		log.Println(SQL_UPDATE, delSql)
 	}

@@ -3,6 +3,7 @@
 		"DB_URL": "szlocaldb:szcrf123@tcp(10.193.1.19:3306)/armyfight",
 		"LISTEN":8000,
 		"OPEN_CONNS":50,
-		"IDLE_CONNS":50
+		"IDLE_CONNS":50,
+		"LISTEN_IP":"127.0.0.1:9080"
 	}
 }
