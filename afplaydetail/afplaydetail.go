@@ -721,6 +721,7 @@ func (r AfPlayDetailList) UpdateMap(batchNo string, playNo int64, player string,
 		log.Println(SQL_ERROR, err.Error())
 		return err
 	}
+	fmt.Println(valSlice)
 	ret, err := stmt.Exec(valSlice...)
 	if err != nil {
 		log.Println(SQL_UPDATE, "Update data error: %v\n", err)

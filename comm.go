@@ -96,22 +96,29 @@ const (
 	STATUS_ONLIE_DONG = 2
 	STATUS_OFFLINE    = 3
 
+	WINNER_COIN_CNT = 3
+	EQUAL_COIN_CNT  = 1
+
 	ROLE_MASTER = "M"
 	ROLE_SLAVE  = "S"
 
-	WINNER_MASTER = "M"
-	WINNER_SLAVE  = "S"
-	WINNER_BOTH   = "B"
-	GAME_END      = "E"
-	GAME_DOING    = "D"
+	WINNER_BOTH = "B"
+
+	GAME_END   = "E"
+	GAME_DOING = "D"
+	GAME_INIT  = "I"
+
+	PLAY_STATUS_INIT = "i"
+	PLAY_STATUS_DONG = "d"
+	PLAY_STATUS_END  = "e"
 
 	RESULT_WINNER = "w"
 	RESULT_LOSER  = "l"
 	RESULT_EQUAL  = "e"
 
-	END_NORMAL = "n"
-	END_GIVEUP = "g"
-	END_DRAW   = "d"
+	END_TYPE_NORMAL = "n"
+	END_TYPE_GIVEUP = "g"
+	END_TYPE_DRAW   = "d"
 
 	FIELD_UPDATE_TIME = "update_date"
 	FIELD_RESULT      = "result"

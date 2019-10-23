@@ -722,12 +722,12 @@ func (r AfPlayList) UpdataEntity(keyNo string, p AfPlay, tr *sql.Tx) error {
 	}
 
 	if p.CoinCnt != 0 {
-		colNames += "coin_cnt=?,"
+		colNames += "coin_cnt=coin_cnt+?,"
 		valSlice = append(valSlice, p.CoinCnt)
 	}
 
 	if p.MedalCnt != 0 {
-		colNames += "medal_cnt=?,"
+		colNames += "medal_cnt=medal_cnt+?,"
 		valSlice = append(valSlice, p.MedalCnt)
 	}
 
@@ -767,7 +767,7 @@ func (r AfPlayList) UpdataEntity(keyNo string, p AfPlay, tr *sql.Tx) error {
 	colNames = strings.TrimRight(colNames, ",")
 	valSlice = append(valSlice, keyNo)
 
-	exeSql := fmt.Sprintf("update  af_play  set %s  where auto_id=? ", colNames)
+	exeSql := fmt.Sprintf("update  af_play  set %s  where batch_no=? ", colNames)
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
@@ -821,7 +821,7 @@ func (r AfPlayList) UpdateMap(keyNo string, m map[string]interface{}, tr *sql.Tx
 	}
 	valSlice = append(valSlice, keyNo)
 	colNames = strings.TrimRight(colNames, ",")
-	updateSql := fmt.Sprintf("Update af_play set %s where auto_id=?", colNames)
+	updateSql := fmt.Sprintf("Update af_play set %s where batch_no=?", colNames)
 	if r.Level == DEBUG {
 		log.Println(SQL_UPDATE, updateSql)
 	}

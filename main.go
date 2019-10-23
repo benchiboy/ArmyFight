@@ -73,7 +73,7 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 			return cmdMsgResp
 		}
 	}
-	GId2ConnMap.Store(cmdMsg.FromId, Player{
+	pe := Player{
 		CurrConn:   c,
 		SignInTime: time.Now(),
 		Status:     STATUS_ONLIN_IDLE,
@@ -81,12 +81,14 @@ func signIn(c *websocket.Conn, playerType int, cmdMsg CommandMsg) CommandMsgResp
 		Avatar:     e.UserImage,
 		NickName:   cmdMsg.FromId,
 		Coins:      e.CoinCnt,
-		Medals:     e.MedalCnt})
+		Medals:     e.MedalCnt}
 
+	GId2ConnMap.Store(cmdMsg.FromId, pe)
 	GConn2IdMap.Store(c, cmdMsg.FromId)
 	cmdMsgResp.FromId = SYSTEM_NAME
 	cmdMsgResp.ToId = cmdMsg.FromId
-	cmdMsgResp.Message = e.UserImage
+	playerBuf, _ := json.Marshal(pe)
+	cmdMsgResp.Message = string(playerBuf)
 	return cmdMsgResp
 }
 
@@ -112,6 +114,7 @@ func playCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	setCard(cmdMsg.FromId, cmdMsg.SCore, cmdMsg.Message)
 	var cmdMsgResp CommandMsgResp
 	cmdMsgResp.Message = cmdMsg.Message
+	cmdMsgResp.PlayNo = cmdMsg.PlayNo
 	cmdMsgResp.Role = getRole(cmdMsg.FromId)
 	cmdMsgResp.Type = PLAY_CARD_RESP
 	return cmdMsgResp
@@ -136,7 +139,7 @@ func reqPlayCard(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 */
 
 func updateOver(batchNo string, endType string, winner string) {
-	log.Println("==========UpdateResult======>")
+	log.Println("==========updateOver======>")
 	rrr := afplay.New(dbutil.GetDB(), afuser.DEBUG)
 	playMap := map[string]interface{}{FIELD_ENDTYPE: endType, FIELD_WINNER: winner, FIELD_UPDATE_TIME: time.Now()}
 	if err := rrr.UpdateMap(batchNo, playMap, nil); err != nil {
@@ -148,87 +151,87 @@ func updateOver(batchNo string, endType string, winner string) {
 	功能：更新决战的结果
 */
 func updateResult(batchNo string, playNo int64, fromId string, toId string, winner string, isEnd string) {
-	log.Println("==========UpdateResult======>", batchNo, playNo, fromId, toId, winner)
-	//更新明细表
+	log.Println("==========UpdateResult======>", "BatchNo==>", batchNo, "PlayNo==>", playNo,
+		"FromId==>", fromId, "ToId==>", toId, "Winner==>", winner)
 	r := afplaydetail.New(dbutil.GetDB(), afuser.DEBUG)
 	tr, err := r.DB.Begin()
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	var playCoins int64
+	//平手时更新
 	if winner == WINNER_BOTH {
-		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_EQUAL, FIELD_UPDATE_TIME: time.Now()}
+		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_EQUAL, FIELD_COIN_CNT: EQUAL_COIN_CNT, FIELD_UPDATE_TIME: time.Now().Unix()}
 		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
 			log.Println("更新对战明细失败", err)
 			tr.Rollback()
 		}
-		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_EQUAL, FIELD_UPDATE_TIME: time.Now()}
 		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
 			log.Println("更新对战明细失败", err)
 			tr.Rollback()
 		}
 
+		playCoins = EQUAL_COIN_CNT * 2
+
 		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
-		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
-		if err = rr.UpdateMap(fromId, userMap, tr); err != nil {
+		e := afuser.AfUser{CoinCnt: 1, UpdateDate: time.Now().Unix()}
+		if err = rr.UpdataEntity(fromId, e, tr); err != nil {
+			log.Println("更新用户失败", err)
+			tr.Rollback()
+		}
+		if err = rr.UpdataEntity(toId, e, tr); err != nil {
 			log.Println("更新用户失败", err)
 			tr.Rollback()
 		}
 
-		userMap = map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
-		if err = rr.UpdateMap(toId, userMap, tr); err != nil {
+	} else {
+		//FromID is Winner
+		var winnerId, losterId string
+		if winner == fromId {
+			winnerId = fromId
+			losterId = toId
+		} else if winner == toId {
+			winnerId = toId
+			losterId = fromId
+		}
+		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_WINNER, FIELD_COIN_CNT: WINNER_COIN_CNT, FIELD_UPDATE_TIME: time.Now().Unix()}
+		if err = r.UpdateMap(batchNo, playNo, winnerId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_LOSER, FIELD_COIN_CNT: 0, FIELD_UPDATE_TIME: time.Now().Unix()}
+		if err = r.UpdateMap(batchNo, playNo, losterId, detailMap, tr); err != nil {
+			log.Println("更新对战明细失败", err)
+			tr.Rollback()
+		}
+
+		playCoins = WINNER_COIN_CNT
+
+		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
+		e := afuser.AfUser{CoinCnt: WINNER_COIN_CNT, UpdateDate: time.Now().Unix()}
+		if err = rr.UpdataEntity(winnerId, e, tr); err != nil {
 			log.Println("更新用户失败", err)
 			tr.Rollback()
 		}
 	}
-	if winner == fromId {
-		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_WINNER, FIELD_UPDATE_TIME: time.Now()}
-		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
-			log.Println("更新对战明细失败", err)
+	//update play table
+	rrr := afplay.New(dbutil.GetDB(), afuser.DEBUG)
+	if isEnd == GAME_END {
+		pe := afplay.AfPlay{Status: PLAY_STATUS_END, CoinCnt: playCoins, EndType: END_TYPE_NORMAL,
+			Winner: winner, UpdateDate: time.Now().Unix()}
+		if err = rrr.UpdataEntity(batchNo, pe, tr); err != nil {
+			log.Println("更新对战批次失败", err)
 			tr.Rollback()
 		}
-		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_LOSER, FIELD_UPDATE_TIME: time.Now()}
-		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
-			log.Println("更新对战明细失败", err)
-			tr.Rollback()
-		}
-
-		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
-		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
-		if err = rr.UpdateMap(fromId, userMap, tr); err != nil {
-			log.Println("更新用户失败", err)
-			tr.Rollback()
-		}
-	}
-	if winner == toId {
-		detailMap := map[string]interface{}{FIELD_RESULT: RESULT_WINNER, FIELD_UPDATE_TIME: time.Now()}
-		if err = r.UpdateMap(batchNo, playNo, toId, detailMap, tr); err != nil {
-			log.Println("更新对战明细失败", err)
-			tr.Rollback()
-		}
-		detailMap = map[string]interface{}{FIELD_RESULT: RESULT_LOSER, FIELD_UPDATE_TIME: time.Now()}
-		if err = r.UpdateMap(batchNo, playNo, fromId, detailMap, tr); err != nil {
-			log.Println("更新对战明细失败", err)
-			tr.Rollback()
-		}
-
-		rr := afuser.New(dbutil.GetDB(), afuser.DEBUG)
-		userMap := map[string]interface{}{FIELD_COIN_CNT: 11, FIELD_UPDATE_TIME: time.Now()}
-		if err = rr.UpdateMap(toId, userMap, tr); err != nil {
-			log.Println("更新用户失败", err)
-			tr.Rollback()
-		}
-
-	}
-	//更新批次信息
-	if isEnd == "E" {
-		rrr := afplay.New(dbutil.GetDB(), afuser.DEBUG)
-		playMap := map[string]interface{}{FIELD_STATUS: "e", FIELD_ENDTYPE: END_NORMAL, FIELD_WINNER: winner, FIELD_UPDATE_TIME: time.Now()}
-		if err = rrr.UpdateMap(batchNo, playMap, tr); err != nil {
+	} else {
+		pe := afplay.AfPlay{CoinCnt: playCoins, UpdateDate: time.Now().Unix()}
+		if err = rrr.UpdataEntity(batchNo, pe, tr); err != nil {
 			log.Println("更新对战批次失败", err)
 			tr.Rollback()
 		}
 	}
+
 	tr.Commit()
 }
 
@@ -297,7 +300,7 @@ func queryResult(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	cmdMsg.Status = endTag
 	proxyMsg(c, cmdMsg)
 	cmdMsgResp := CommandMsgResp{Type: QUERY_RESULT_RESP, ToId: cmdMsg.ToId,
-		FromId: cmdMsg.FromId, Winner: winner, Status: endTag, Message: toCard}
+		FromId: cmdMsg.FromId, Winner: winner, Status: endTag, Message: toCard, PlayNo: cmdMsg.PlayNo}
 	log.Println(cmdMsg)
 	updateResult(cmdMsg.BatchNo, cmdMsg.PlayNo, cmdMsg.FromId, cmdMsg.ToId, winner, endTag)
 
@@ -432,6 +435,7 @@ func startGame(c *websocket.Conn, cmdMsg CommandMsg) CommandMsgResp {
 	e.BatchNo = cmdMsg.BatchNo
 	e.FromPlayer = cmdMsg.FromId
 	e.ToPlayer = cmdMsg.ToId
+	e.InsertDate = time.Now().Unix()
 	play.InsertEntity(e, nil)
 
 	var cmdMsgResp CommandMsgResp

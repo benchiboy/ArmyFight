@@ -793,12 +793,12 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 	}
 
 	if p.CoinCnt != 0 {
-		colNames += "coin_cnt=?,"
+		colNames += "coin_cnt=coin_cnt+?,"
 		valSlice = append(valSlice, p.CoinCnt)
 	}
 
 	if p.MedalCnt != 0 {
-		colNames += "medal_cnt=?,"
+		colNames += "medal_cnt=medal_cnt+?,"
 		valSlice = append(valSlice, p.MedalCnt)
 	}
 
@@ -852,7 +852,7 @@ func (r AfUserList) UpdataEntity(keyNo string, p AfUser, tr *sql.Tx) error {
 	colNames = strings.TrimRight(colNames, ",")
 	valSlice = append(valSlice, keyNo)
 
-	exeSql := fmt.Sprintf("update  af_user  set %s  where auto_id=? ", colNames)
+	exeSql := fmt.Sprintf("update  af_user  set %s  where user_name=? ", colNames)
 	if r.Level == DEBUG {
 		log.Println(SQL_INSERT, exeSql)
 	}
